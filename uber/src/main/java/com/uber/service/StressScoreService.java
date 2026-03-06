@@ -13,9 +13,9 @@ public class StressScoreService {
     // Normalize decibels (assumed range 30–120 dB) to 0–100
     public double calcAudioScore(AudioData audio) {
         double normalized = Math.min(100, Math.max(0, (audio.getDecibels() - 30) / 90.0 * 100));
-        if (audio.isSpiking()) {
-            normalized = Math.min(100, normalized * 1.3); // 30% spike penalty
-        }
+//        if (audio.isSpiking()) {
+//            normalized = Math.min(100, normalized * 1.3); // 30% spike penalty
+//        }
         return normalized;
     }
 
@@ -32,8 +32,8 @@ public class StressScoreService {
 
     // Produces a StressSnapshot from a single SensorReading
     public StressSnapshot takeSnapshot(SensorReading reading) {
-        double audio    = calcAudioScore(reading.getAudioData());
-        double motion   = calcMotionScore(reading.getMotionData());
+        double audio = calcAudioScore(reading.getAudioData());
+        double motion = calcMotionScore(reading.getMotionData());
         double combined = calcCombined(audio, motion);
         return new StressSnapshot(reading.getTimestamp(), audio, motion, combined);
     }

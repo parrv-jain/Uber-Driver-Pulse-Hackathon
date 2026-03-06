@@ -1,6 +1,9 @@
 package com.uber.models;
 
 import com.uber.enums.RideStatus;
+
+import java.time.Duration;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -36,19 +39,13 @@ public class Driver {
                 .filter(r -> r.getStatus() == RideStatus.COMPLETED)
                 .mapToDouble(Ride::getActualFare)
                 .sum();
-//        Ride ong_ride = rides.stream()
-//                .filter(r -> r.getStatus() == RideStatus.ONGOING);
-//        double ong_fair = rides.stream()
-//                .filter(r -> r.getStatus() == RideStatus.ONGOING)
-//                .mapToDouble(Ride::getActualFare)
-//                .sum();
-//        double duration = rides.stream()
-//                .filter(r -> r.getStatus() == RideStatus.COMPLETED)
-//                .mapToDouble(Ride::getDuration)
-//                .sum();
-//        if(ong_fair == 0.0) return res;
-//
-//        double current_time = currentShift.getHoursWorked() -
+        Ride ongoing = rides.stream()
+                .filter(r-> r.getStatus() == RideStatus.ONGOING)
+                .findFirst().orElse(null);
+        if(ongoing == null) return (res);
+        double tripPassed = Duration.between(ongoing.getStartTime(), LocalTime.now()).toMinutes() / 60.0;
+        res += ((double)((double)ongoing.getActualFare()/(double)ongoing.getDuration())) * tripPassed;
+        return res;
     }
 
     public String      getId()           { return id; }

@@ -14,8 +14,8 @@ public class WeightedStressStrategy implements StressRatingStrategy {
     public StressRating calculate(List<StressSnapshot> snapshots) {
         if (snapshots == null || snapshots.isEmpty()) return StressRating.LOW;
 
-        int    size         = snapshots.size();
-        int    recentCutoff = size - Math.max(1, size / 3);
+        int size = snapshots.size();
+        int recentCutoff = size - Math.max(1, size / 3);
         double totalWeight  = 0.0;
         double weightedSum  = 0.0;
 

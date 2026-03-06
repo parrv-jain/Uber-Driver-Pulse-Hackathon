@@ -30,7 +30,7 @@ public class EarningVelocityService {
 
     // Projected earnings if current pace continues until end of shift
     public double getProjectedEarnings(Driver driver, Shift shift) {
-        double hoursWorked     = shift.getHoursWorked();
+        double hoursWorked = shift.getHoursWorked();
         double totalShiftHours = shift.getTotalShiftHours();
         if (hoursWorked == 0) return 0.0;
         double currentVelocity = driver.getTotalEarned() / hoursWorked;
@@ -41,9 +41,9 @@ public class EarningVelocityService {
     private PaceStatus derivePaceStatus(double current, double required) {
         if (required <= 0 || required == Double.MAX_VALUE) return PaceStatus.CRITICAL;
         double ratio = current / required;
-        if      (ratio > 1.10) return PaceStatus.AHEAD;
+        if(ratio > 1.10) return PaceStatus.AHEAD;
         else if (ratio > 0.90) return PaceStatus.ON_TRACK;
         else if (ratio > 0.70) return PaceStatus.BEHIND;
-        else                   return PaceStatus.CRITICAL;
+        else return PaceStatus.CRITICAL;
     }
 }

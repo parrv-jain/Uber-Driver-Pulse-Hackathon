@@ -19,6 +19,9 @@ public final class MotionData {
     }
 
     public double getSpeed()        { return speed; }
+    public double getAcceleration(){
+        return Math.sqrt(Math.pow(this.acc_x, 2) + Math.pow(this.acc_y, 2) + Math.pow(this.acc_z, 2));
+    }
     public double getLatitude()     { return latitude; }
     public double getLongitude()    { return longitude; }
 
