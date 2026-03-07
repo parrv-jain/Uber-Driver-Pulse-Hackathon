@@ -4,6 +4,7 @@ import com.uber.enums.RideStatus;
 import com.uber.models.Driver;
 import com.uber.models.Ride;
 import com.uber.models.RideRequest;
+import com.uber.repository.DriverRepository;
 import com.uber.repository.RideRepository;
 import com.uber.repository.RideRequestRepository;
 import java.time.LocalDateTime;
@@ -13,10 +14,12 @@ public class RideService {
 
     private final RideRepository        rideRepo;
     private final RideRequestRepository rideRequestRepo;
+    private final DriverRepository driverRepo;
 
-    public RideService(RideRepository rideRepo, RideRequestRepository rideRequestRepo) {
-        this.rideRepo        = rideRepo;
+    public RideService(RideRepository rideRepo, RideRequestRepository rideRequestRepo, DriverRepository driverRepo) {
+        this.rideRepo = rideRepo;
         this.rideRequestRepo = rideRequestRepo;
+        this.driverRepo = driverRepo;
     }
 
     // NEW — Ride only born on acceptance
@@ -46,6 +49,7 @@ public class RideService {
     }
 
     public List<Ride> getRidesByDriver(String driverId, RideStatus status) {
-        return rideRepo.findByStatus(driverId, status);
+        Driver driver = driverRepo.findById(driverId);
+        return driver.getRidesByStatus(status);
     }
 }

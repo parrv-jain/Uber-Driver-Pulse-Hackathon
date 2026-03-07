@@ -19,22 +19,20 @@ public class Main {
         RideRequestRepository rideRequestRepo = new RideRequestRepository();
 
         ShiftService           shiftService     = new ShiftService(driverRepo);
-        RideService            rideService      = new RideService(rideRepo, rideRequestRepo);
+        RideService            rideService      = new RideService(rideRepo, rideRequestRepo, driverRepo);
         SensorSimulator        simulator        = new SensorSimulator();
         StressScoreService     scoreService     = new StressScoreService();
         StressRatingService    ratingService    = new StressRatingService(new AverageStressStrategy());
         EarningVelocityService velocityService  = new EarningVelocityService();
 
+
         Driver driver = new Driver("Rahul Verma");
         driver.setEarningGoal(new EarningGoal(1000.0));  // ₹1000 target
         driverRepo.save(driver);
-        System.out.println("\n=== DRIVER REGISTERED ===");
+        LocalTime shiftEnd = LocalTime.now().plusHours(8);
+        shiftService.startShift(driver, shiftEnd);
+        System.out.println("\n=== DRIVER REGISTERED AND SHIFT STARTED SIMULTANEOUSLY ===");
         System.out.println(driver);
-
-        System.out.println("\n=== SHIFT START ===");
-        LocalTime shiftStart = LocalTime.now();
-        LocalTime shiftEnd   = shiftStart.plusHours(8);
-        shiftService.startShift(driver, shiftStart, shiftEnd);
 
         List<RideRequest> generatedRides = RideRequestGenerator.generate();
         generatedRides.forEach(rideRequestRepo::add);

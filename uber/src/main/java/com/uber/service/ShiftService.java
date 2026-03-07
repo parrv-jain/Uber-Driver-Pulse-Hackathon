@@ -13,10 +13,11 @@ public class ShiftService {
         this.driverRepo = driverRepo;
     }
 
-    public Shift startShift(Driver driver, LocalTime startTime, LocalTime endTime) {
+    public Shift startShift(Driver driver, LocalTime endTime) {
         if (driver.getCurrentShift() != null && driver.getCurrentShift().isActive()) {
             throw new IllegalStateException("Driver " + driver.getName() + " already has an active shift.");
         }
+        LocalTime startTime = LocalTime.now();
         Shift shift = new Shift(driver.getId(), startTime, endTime);
         shift.activate();
         driver.setCurrentShift(shift);
@@ -35,18 +36,5 @@ public class ShiftService {
         driverRepo.save(driver);
         System.out.printf("[ShiftService] Shift ended for %s | Hours worked: %.2f%n",
                 driver.getName(), shift.getHoursWorked());
-    }
-
-    public boolean isWithinShift(Driver driver) {
-        Shift shift = driver.getCurrentShift();
-        if (shift == null || !shift.isActive()) return false;
-        LocalTime now = LocalTime.now();
-        return !now.isBefore(shift.getStartTime()) && !now.isAfter(shift.getEndTime());
-    }
-
-    public double getHoursRemaining(Driver driver) {
-        Shift shift = driver.getCurrentShift();
-        if (shift == null) return 0.0;
-        return shift.getHoursRemaining();
     }
 }
