@@ -3,7 +3,7 @@ package com.uber.models;
 import com.uber.enums.RideStatus;
 
 import java.time.Duration;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,31 +35,31 @@ public class Driver {
     }
 
     public double getTotalEarned() {
-        double res =  rides.stream()
+        double res = rides.stream()
                 .filter(r -> r.getStatus() == RideStatus.COMPLETED)
                 .mapToDouble(Ride::getActualFare)
                 .sum();
         Ride ongoing = rides.stream()
-                .filter(r-> r.getStatus() == RideStatus.ONGOING)
+                .filter(r -> r.getStatus() == RideStatus.ONGOING)
                 .findFirst().orElse(null);
-        if(ongoing == null) return (res);
-        double tripPassed = Duration.between(ongoing.getStartTime(), LocalTime.now()).toMinutes() / 60.0;
-        res += ((double)((double)ongoing.getActualFare()/(double)ongoing.getDuration())) * tripPassed;
+        if (ongoing == null) return res;
+        double tripPassed = Duration.between(ongoing.getStartTime(), LocalDateTime.now()).toMinutes() / 60.0;
+        res += (ongoing.getActualFare() / ongoing.getDuration()) * tripPassed;
         return res;
     }
 
-    public boolean hasOngoingRide(){
-        return (rides.stream().anyMatch((r->r.getStatus() == RideStatus.ONGOING)));
+    public boolean hasOngoingRide() {
+        return rides.stream().anyMatch(r -> r.getStatus() == RideStatus.ONGOING);
     }
 
-    public String getId()           { return id; }
-    public String getName()         { return name; }
-    public Shift  getCurrentShift() { return currentShift; }
-    public EarningGoal getEarningGoal()  { return earningGoal; }
-    public List<Ride>  getRides()        { return Collections.unmodifiableList(rides); }
+    public String     getId()           { return id; }
+    public String     getName()         { return name; }
+    public Shift      getCurrentShift() { return currentShift; }
+    public EarningGoal getEarningGoal() { return earningGoal; }
+    public List<Ride>  getRides()       { return Collections.unmodifiableList(rides); }
 
-    public void setCurrentShift(Shift shift)       { this.currentShift = shift; }
-    public void setEarningGoal(EarningGoal goal)   { this.earningGoal = goal; }
+    public void setCurrentShift(Shift shift)     { this.currentShift = shift; }
+    public void setEarningGoal(EarningGoal goal) { this.earningGoal = goal; }
 
     @Override
     public String toString() {

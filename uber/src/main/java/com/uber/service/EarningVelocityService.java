@@ -8,7 +8,7 @@ import com.uber.models.Shift;
 public class EarningVelocityService {
 
     // Called at regular intervals to recalculate pace
-    public EarningVelocity calculate(Driver driver, Shift shift) { // main function for calculation of earningvelo
+    public EarningVelocity calculate(Driver driver, Shift shift) { // main function for calculation of earning velocity
         double earned = driver.getTotalEarned();
         double target = driver.getEarningGoal().getTargetAmount();
         double hoursWorked = shift.getHoursWorked();
