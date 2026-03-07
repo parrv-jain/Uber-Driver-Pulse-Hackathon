@@ -25,12 +25,15 @@ public class SensorSimulator {
     }
 
     private MotionData generateMotion() {
-        double speed = 10 + random.nextDouble() * 100;
-        double acc_x = random.nextDouble() * 8;
-        double acc_y = random.nextDouble() * 8;
-        double acc_z = random.nextDouble() * 8;
+//        double speed = 10 + random.nextDouble() * 100;
+        double acc_x = 0.0 + (1.5 * random.nextGaussian()); // clamp to [-8, 8]
+        double acc_y = 0.0 + (2.0 * random.nextGaussian()); // clamp to [-9, 9]
+        double acc_z = 9.8 + (0.05 * random.nextGaussian()); // clamp to [9.7, 9.9]
+        acc_x = Math.max(-8.0, Math.min(8.0, acc_x));
+        acc_y = Math.max(-9.0, Math.min(9.0, acc_y));
+        acc_z = Math.max(9.7,  Math.min(9.9, acc_z));
         double lat   = BASE_LAT + (random.nextDouble() - 0.5) * 0.1;
         double lng   = BASE_LNG + (random.nextDouble() - 0.5) * 0.1;
-        return new MotionData(speed, acc_x, acc_y, acc_z, lat, lng);
+        return new MotionData(acc_x, acc_y, acc_z, lat, lng);
     }
 }

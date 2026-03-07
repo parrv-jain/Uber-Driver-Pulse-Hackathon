@@ -34,9 +34,15 @@ public class StressScoreService {
     }
 
     public double calcMotionScore(MotionData motion) {
-        double speedScore = (motion.getSpeed() / 120.0) * 0.4;
-        double accelScore = (motion.getAcceleration() / 6.0) * 0.6;
-        return Math.min(1.0, speedScore + accelScore);
+        // acc_z ignored (constant gravity ~9.8)
+        double latAcceleration = motion.getAcceleration();
+        final double SMOOTH_THRESHOLD = 2.0;
+        final double ROUGH_THRESHOLD  = 8.0;
+
+        double score = (latAcceleration - SMOOTH_THRESHOLD)
+                / (ROUGH_THRESHOLD - SMOOTH_THRESHOLD);
+
+        return Math.max(0.0, Math.min(1.0, score));
     }
 
     public MotionRating classifyMotion(double motionScore) {

@@ -2,9 +2,9 @@ package com.uber.enums;
 
 public enum StressRating {
     LOW(0, 0.30),
-    MEDIUM(31, 0.60),
-    HIGH(61, 0.85),
-    CRITICAL(86, 1.0);
+    MEDIUM(0.30, 0.60),
+    HIGH(0.60, 0.85),
+    CRITICAL(0.85, 1.0);
 
     private final double minScore;
     private final double maxScore;
