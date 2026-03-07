@@ -47,6 +47,7 @@ public class Driver {
         res += ((double)((double)ongoing.getActualFare()/(double)ongoing.getDuration())) * tripPassed;
         return res;
     }
+
     public boolean hasOngoingRide(){
         return (rides.stream().anyMatch((r->r.getStatus() == RideStatus.ONGOING)));
     }

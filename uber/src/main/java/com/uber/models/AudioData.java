@@ -3,7 +3,7 @@ package com.uber.models;
 public final class AudioData {
 
     private final double decibels;    // 30–120 dB range
-    private final double sustainedSeconds;   // Hz
+    private final double sustainedSeconds;   // seconds
 
     public AudioData(double decibels, double sustainedSeconds) {
         this.decibels  = decibels;

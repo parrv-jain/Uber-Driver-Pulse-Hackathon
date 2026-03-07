@@ -8,7 +8,7 @@ import java.util.Random;
 
 public class RideRequestGenerator {
 
-    // Mumbai locations with example corrdinates of Mumbai
+    // Mumbai locations with example coordinates of Mumbai
     private static final Object[][] MUMBAI_LOCATIONS = {
             { 19.0596, 72.8295, "Bandra West" },
             { 19.2183, 72.9781, "Thane" },
@@ -47,10 +47,9 @@ public class RideRequestGenerator {
             Location pickup  = new Location((double) p[0], (double) p[1], (String) p[2]);
             Location dropoff = new Location((double) d[0], (double) d[1], (String) d[2]);
 
-            double distanceKm = 4.0 + Math.round(random.nextDouble() * 21.0 * 10) / 10.0; // 4–25 km
-            int durationMinutes = 10 + random.nextInt(51); // 10–60 min
-            double fare = Math.round((distanceKm * 11 + durationMinutes * 1.5) * 10.0) / 10.0;  // some strategy to find fare
-
+            double distanceKm = Math.round(pickup.distanceTo(dropoff) * 10.0) / 10.0; // real distance
+            int durationMinutes = (int) (distanceKm * 2.5) + random.nextInt(10);       // rough estimate + traffic noise
+            double fare = Math.round((distanceKm * 11 + durationMinutes * 1.5) * 10.0) / 10.0; // fare calculation algorithm
             requests.add(new RideRequest(pickup, dropoff, fare, distanceKm, durationMinutes));
         }
         return requests;
