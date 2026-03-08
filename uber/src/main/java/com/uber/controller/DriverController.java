@@ -12,8 +12,10 @@ import com.uber.strategy.WeightedStressStrategy;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -203,23 +205,31 @@ public class DriverController {
     // ─────────────────────────────────────────────────────────────────
     // GET /api/rides/{rideId}/stress
     // Returns: all stress snapshots for a ride
+    // ALSO USED TO GET LIVE EARNING VELOCITY
     // ─────────────────────────────────────────────────────────────────
     @GetMapping("/rides/{rideId}/stress")
     public ResponseEntity<?> getStressSnapshots(@PathVariable String rideId) {
         Ride ride = rideRepo.findById(rideId);
         if (ride == null) return ResponseEntity.badRequest().body("Ride not found: " + rideId);
 
-        List<Map<String, Object>> snapshots = ride.getStressSnapshots().stream().map(s -> Map.<String, Object>of(
-                "timestamp",    s.getTimestamp().toLocalTime().toString(),
-                "audioScore",   s.getAudioScore(),
-                "audioLevel",   s.getAudioLevel().toString(),
-                "motionScore",  s.getMotionScore(),
-                "motionLevel",  s.getMotionLevel().toString(),
-                "combinedScore",s.getCombinedScore(),
-                "combinedLevel",s.getCombinedLevel().toString(),
-                "audioFlagged", s.isAudioFlagged(),
-                "motionFlagged",s.isMotionFlagged()
-        )).toList();
+        List<Map<String, Object>> snapshots =
+                ride.getStressSnapshots().stream().map(s -> {
+                    Map<String, Object> m = new HashMap<>();
+                    m.put("timestamp", s.getTimestamp().toLocalTime().toString());
+                    m.put("audioScore", s.getAudioScore());
+                    m.put("audioLevel", s.getAudioLevel().toString());
+                    m.put("motionScore", s.getMotionScore());
+                    m.put("motionLevel", s.getMotionLevel().toString());
+                    m.put("combinedScore", s.getCombinedScore());
+                    m.put("combinedLevel", s.getCombinedLevel().toString());
+                    m.put("audioFlagged", s.isAudioFlagged());
+                    m.put("motionFlagged", s.isMotionFlagged());
+                    m.put("currentVelocity", s.getEarningVelocity().getCurrentVelocity());
+                    m.put("requiredVelocity", s.getEarningVelocity().getRequiredVelocity());
+                    m.put("velocityDelta", s.getEarningVelocity().getVelocityDelta());
+                    m.put("paceStatus", s.getEarningVelocity().getPaceStatus());
+                    return m;
+                }).toList();
 
         return ResponseEntity.ok(Map.of("rideId", rideId, "snapshots", snapshots));
     }

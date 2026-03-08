@@ -5,6 +5,7 @@ import {
 import { Card, Badge, SectionHeader, Btn, Empty, Spinner, Table, MonoLabel } from './UI';
 import { apiGet, apiPost } from '../api';
 import { useToast } from '../hooks/useToast';
+import EarningVelocityMonitor from './EarningVelocityMonitor';
 
 function levelColor(l) {
   if (!l) return 'gray';
@@ -29,7 +30,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 export default function StressMonitor({ activeRideId }) {
-  const toast   = useToast();
+  const toast = useToast();
   const [snaps, setSnaps]       = useState([]);
   const [loading, setLoading]   = useState(false);
   const [strategy, setStrategy] = useState('AVERAGE');
@@ -73,6 +74,7 @@ export default function StressMonitor({ activeRideId }) {
 
   return (
     <div>
+      {/* ── Stress Monitor section ─────────────────────────────────────────── */}
       <SectionHeader title="Stress Monitor" right={
         <div style={{ display:'flex', gap:6, alignItems:'center' }}>
           <MonoLabel>Strategy:</MonoLabel>
@@ -174,6 +176,9 @@ export default function StressMonitor({ activeRideId }) {
           )}
         </>
       )}
+
+      {/* ── Earning Velocity Monitor — rendered directly below ─────────────── */}
+      <EarningVelocityMonitor activeRideId={activeRideId} />
     </div>
   );
 }

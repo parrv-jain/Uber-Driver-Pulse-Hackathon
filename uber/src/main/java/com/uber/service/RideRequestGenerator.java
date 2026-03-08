@@ -47,11 +47,11 @@ public class RideRequestGenerator {
             Location pickup  = new Location((double) p[0], (double) p[1], (String) p[2]);
             Location dropoff = new Location((double) d[0], (double) d[1], (String) d[2]);
 
-            int reducingFactor = 10;
+            int reducingFactor = 10; // Use when required to reduce duration
             double distanceKm = Math.round(pickup.distanceTo(dropoff) * 10.0) / 10.0; // real distance
             int durationMinutes = (int) (distanceKm * 2.5) + random.nextInt(10);       // rough estimate + traffic noise
             double fare = Math.round((distanceKm * 11 + durationMinutes * 1.5) * 10.0) / 10.0; // fare calculation algorithm
-            requests.add(new RideRequest(pickup, dropoff, fare, distanceKm, durationMinutes/reducingFactor));
+            requests.add(new RideRequest(pickup, dropoff, fare, distanceKm, durationMinutes));
         }
         return requests;
     }
