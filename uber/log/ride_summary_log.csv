@@ -1,2 +1,2 @@
-ride_id,driver_id,duration,distance,start_location,end_location,fare,motion_flag_count,audio_flag_count,flagged_moment_count,stress_rating,stress_rating_label
-5a0b835b,5e71beb6,3,7.1000,Juhu,Goregaon,114.1000,5,0,5,MEDIUM,MEDIUM
+ride_id,driver_id,driver_name,duration,distance,start_location,end_location,fare,motion_flag_count,audio_flag_count,flagged_moment_count,stress_rating,stress_rating_label
+754a9fee,47ac7e86,Pranjal Kabra,3,13.6000,Chembur,Goregaon,208.1000,0,3,3,MEDIUM,MEDIUM
