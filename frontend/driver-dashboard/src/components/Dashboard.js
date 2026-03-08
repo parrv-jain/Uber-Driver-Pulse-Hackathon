@@ -9,12 +9,22 @@ function ratingColor(r) {
   return 'gray';
 }
 
+function paceColor(status) {
+  if (!status) return 'gray';
+  const s = status.toUpperCase();
+  if (s.includes('AHEAD') || s.includes('FAST'))   return 'green';
+  if (s.includes('ON'))                             return 'lime';
+  if (s.includes('BEHIND') || s.includes('SLOW'))  return 'yellow';
+  if (s.includes('CRITICAL') || s.includes('FAR')) return 'red';
+  return 'gray';
+}
+
 // ── Velocity gauge bar ────────────────────────────────
 function VelocityBar({ current, target: tgt }) {
-  const max     = Math.max(current, tgt, 1);
-  const curPct  = (current / max) * 100;
-  const tgtPct  = (tgt     / max) * 100;
-  const ahead   = current >= tgt;
+  const max    = Math.max(current, tgt, 1);
+  const curPct = (current / max) * 100;
+  const tgtPct = (tgt     / max) * 100;
+  const ahead  = current >= tgt;
 
   return (
     <div style={{ position:'relative', height:10, background:'var(--bg)', borderRadius:99, overflow:'visible', marginTop:6 }}>
@@ -40,13 +50,19 @@ function VelocityBar({ current, target: tgt }) {
 }
 
 // ── Velocity Card ─────────────────────────────────────
-function VelocityCard({ velocity, activeRide }) {
-  if (!velocity) return null;
+// Reads currentEarningVelocity, requiredEarningVelocity, paceStatus
+// directly from the /driver/{id}/report response.
+function VelocityCard({ report, activeRide }) {
+  if (!report) return null;
 
-  const { currentVelocity: cur, targetVelocity: tgt, hoursWorked, hoursLeft } = velocity;
+  const cur    = report.currentEarningVelocity  ?? 0;
+  const tgt    = report.requiredEarningVelocity ?? 0;
+  const status = report.paceStatus ?? null;
   const ahead  = cur >= tgt;
   const diff   = Math.abs(cur - tgt).toFixed(2);
-  const status = tgt === 0 ? 'Goal reached 🎉' : ahead ? `+₹${diff}/h ahead` : `-₹${diff}/h behind`;
+  const label  = tgt === 0
+    ? 'Goal reached 🎉'
+    : ahead ? `+₹${diff}/h ahead` : `-₹${diff}/h behind`;
 
   return (
     <div style={{
@@ -71,33 +87,53 @@ function VelocityCard({ velocity, activeRide }) {
         <div>
           <div style={{ fontFamily:'var(--font-mono)', fontSize:9, letterSpacing:'3px', color:'var(--text-3)', textTransform:'uppercase', marginBottom:6 }}>
             Earning Velocity
-            {activeRide && <span style={{ marginLeft:8, color:'var(--lime)', background:'var(--lime-dim)', padding:'1px 6px', borderRadius:99, border:'1px solid var(--lime-glow)' }}>● LIVE</span>}
+            {activeRide && (
+              <span style={{ marginLeft:8, color:'var(--lime)', background:'var(--lime-dim)', padding:'1px 6px', borderRadius:99, border:'1px solid var(--lime-glow)' }}>
+                ● LIVE
+              </span>
+            )}
           </div>
-          <div style={{ display:'flex', alignItems:'baseline', gap:16 }}>
+          <div style={{ display:'flex', alignItems:'baseline', gap:16, flexWrap:'wrap' }}>
+            {/* Current */}
             <div>
               <span style={{ fontSize:28, fontWeight:800, letterSpacing:'-1px', color: ahead ? 'var(--emerald)' : 'var(--coral)' }}>
                 ₹{cur.toFixed(2)}
               </span>
               <span style={{ fontFamily:'var(--font-mono)', fontSize:11, color:'var(--text-3)', marginLeft:4 }}>/hr actual</span>
             </div>
+
             <div style={{ width:1, height:28, background:'var(--border)' }} />
+
+            {/* Required */}
             <div>
               <span style={{ fontSize:28, fontWeight:800, letterSpacing:'-1px', color:'var(--cyan)' }}>
                 ₹{tgt.toFixed(2)}
               </span>
               <span style={{ fontFamily:'var(--font-mono)', fontSize:11, color:'var(--text-3)', marginLeft:4 }}>/hr needed</span>
             </div>
+
+            {/* Pace Status badge */}
+            {status && (
+              <>
+                <div style={{ width:1, height:28, background:'var(--border)' }} />
+                <div>
+                  <div style={{ fontFamily:'var(--font-mono)', fontSize:9, letterSpacing:'2px', color:'var(--text-3)', textTransform:'uppercase', marginBottom:4 }}>Pace</div>
+                  <Badge color={paceColor(status)}>{status}</Badge>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
+        {/* Ahead/behind pill */}
         <div style={{
           padding:'6px 12px', borderRadius:99, fontSize:11, fontWeight:700,
           fontFamily:'var(--font-mono)',
           background: ahead ? 'var(--emerald-dim)' : 'var(--coral-dim)',
-          color: ahead ? 'var(--emerald)' : 'var(--coral)',
+          color:      ahead ? 'var(--emerald)'     : 'var(--coral)',
           border:`1px solid ${ahead ? 'rgba(53,241,126,0.2)' : 'rgba(241,96,53,0.2)'}`,
-          whiteSpace:'nowrap',
-        }}>{status}</div>
+          whiteSpace:'nowrap', alignSelf:'flex-start',
+        }}>{label}</div>
       </div>
 
       {/* Gauge */}
@@ -114,20 +150,20 @@ function VelocityCard({ velocity, activeRide }) {
           Target pace
         </div>
         <div style={{ marginLeft:'auto', fontFamily:'var(--font-mono)', fontSize:11, color:'var(--text-3)' }}>
-          {hoursWorked?.toFixed(1)}h worked · {hoursLeft?.toFixed(1)}h left
+          Updates after each completed ride
         </div>
       </div>
     </div>
   );
 }
 
-export default function Dashboard({ driver, report, velocity, activeRide, onCompleteRide, onViewStress, onRefresh }) {
+export default function Dashboard({ driver, report, activeRide, onCompleteRide, onViewStress, onRefresh }) {
   const earned    = report?.currentEarned ?? 0;
-  const target    = report?.targetAmount ?? (driver?.earningGoal ?? 0);
+  const target    = report?.targetAmount  ?? (driver?.earningGoal ?? 0);
   const pct       = target > 0 ? (earned / target) * 100 : 0;
   const rides     = report?.completedRides ?? [];
   const remaining = report?.remaining ?? target;
-  const goalMet   = report?.goalMet ?? false;
+  const goalMet   = report?.goalMet   ?? false;
 
   return (
     <div>
@@ -157,13 +193,13 @@ export default function Dashboard({ driver, report, velocity, activeRide, onComp
           </div>
           <div style={{ display:'flex', gap:10 }}>
             <Btn variant="success" size="sm" onClick={onCompleteRide}>✓ Complete Ride</Btn>
-            <Btn variant="ghost" size="sm" onClick={onViewStress}>📊 View Stress</Btn>
+            <Btn variant="ghost"   size="sm" onClick={onViewStress}>📊 View Stress</Btn>
           </div>
         </div>
       )}
 
-      {/* Velocity Card — always shown when driver is registered */}
-      {driver && <VelocityCard velocity={velocity} activeRide={activeRide} />}
+      {/* Velocity Card — reads from report */}
+      {driver && <VelocityCard report={report} activeRide={activeRide} />}
 
       {/* Stats */}
       <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:14, marginBottom:22 }}>

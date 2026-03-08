@@ -1,9 +1,7 @@
 package com.uber.service;
 
 import com.uber.enums.RideStatus;
-import com.uber.models.Driver;
-import com.uber.models.Ride;
-import com.uber.models.RideRequest;
+import com.uber.models.*;
 import com.uber.repository.DriverRepository;
 import com.uber.repository.RideRepository;
 import com.uber.repository.RideRequestRepository;
@@ -20,15 +18,18 @@ public class RideService {
     private final RideRequestRepository rideRequestRepo;
     private final DriverRepository      driverRepo;
     private final CsvLogger             csvLogger;
+    private final EarningVelocityService earningVelocityService;
 
     public RideService(RideRepository rideRepo,
                        RideRequestRepository rideRequestRepo,
                        DriverRepository driverRepo,
-                       CsvLogger csvLogger) {
+                       CsvLogger csvLogger,
+                       EarningVelocityService earningVelocityService) {
         this.rideRepo        = rideRepo;
         this.rideRequestRepo = rideRequestRepo;
         this.driverRepo      = driverRepo;
         this.csvLogger       = csvLogger;
+        this.earningVelocityService = earningVelocityService;
     }
 
     public Ride acceptRide(Driver driver, RideRequest request) {
@@ -54,7 +55,10 @@ public class RideService {
         ride.setEndTime(LocalDateTime.now());
         rideRepo.save(ride);
 
+        EarningVelocity ev = earningVelocityService.calculate(ride.getDriver(), ride.getDriver().getCurrentShift(), ride.getEndTime());
         ride.getDriver().getEarningGoal().addEarning(ride.getActualFare());
+        ride.getDriver().getEarningGoal().setEarningVelocity(ev);
+
         csvLogger.logRideSummary(ride);
         System.out.printf("[RideService] Ride COMPLETED | ID: %s | Fare: ₹%.2f | Duration: %d min%n",
                 ride.getId(), ride.getActualFare(), ride.getDuration());

@@ -1,3 +1,5 @@
 flag_id,trip_id,driver_id,timestamp,elapsed_seconds,motion_score,motion_rating,audio_score,audio_rating,stress_score,stress_rating,explanation
-5a026d87,f79fc5b5,4ffcdeda,2026-03-09T01:12:12.701801666,60,0.4641,MODERATE,0.6732,ARGUMENT,0.5477,MEDIUM,"Sustained high audio (108.8 dB) for 19s. Audio disturbance detected."
-4e23bbd1,f79fc5b5,4ffcdeda,2026-03-09T01:12:42.701787804,90,0.6098,HARSH,0.4314,CONVERSATIONAL,0.5384,MEDIUM,"Harsh braking/acceleration detected (5.7 m/s²). Motion disturbance detected."
+00cc48e5,d7336ce3,80ccae83,2026-03-09T01:41:50.798541207,0,0.9713,HARSH,0.5477,ARGUMENT,0.8019,HIGH,"Combined signal: Harsh braking/acceleration detected (7.8 m/s²) + Sustained high audio (93.2 dB) for 17s. Strong conflict indicator."
+9fb1b6f3,bb7ea55b,a69ecc20,2026-03-09T01:54:30.444682407,0,0.0000,GRADUAL,0.6112,ARGUMENT,0.2445,LOW,"Sustained high audio (108.9 dB) for 9s. Audio disturbance detected."
+32c54584,bb7ea55b,a69ecc20,2026-03-09T01:55:00.444723567,30,0.0000,GRADUAL,0.5227,ARGUMENT,0.2091,LOW,"Sustained high audio (100.9 dB) for 4s. Audio disturbance detected."
+2b8281f3,bb7ea55b,a69ecc20,2026-03-09T01:56:30.444641749,120,0.6055,HARSH,0.5626,ARGUMENT,0.5884,MEDIUM,"Combined signal: Harsh braking/acceleration detected (5.6 m/s²) + Sustained high audio (102.5 dB) for 8s. Strong conflict indicator."

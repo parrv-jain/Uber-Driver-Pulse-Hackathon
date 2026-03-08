@@ -275,7 +275,10 @@ public class DriverController {
                 "currentEarned",  goal.getCurrentEarned(),
                 "remaining",      goal.getRemainingTarget(),
                 "goalMet",        goal.isGoalMet(),
-                "completedRides", completedRides
+                "completedRides", completedRides,
+                "currentEarningVelocity", goal.getEarningVelocity().getCurrentVelocity(),
+                "requiredEarningVelocity", goal.getEarningVelocity().getRequiredVelocity(),
+                "paceStatus", goal.getEarningVelocity().getPaceStatus()
         ));
     }
 

@@ -38,8 +38,17 @@ function Inner() {
   const [rides,        setRides]        = useState([]);
   const [ridesLoading, setRidesLoading] = useState(false);
   const [report,       setReport]       = useState(null);
-  const [velocity,     setVelocity]     = useState(null);
   const [generating,   setGenerating]   = useState(false);
+
+  // /driver/{id}/report now returns currentEarningVelocity, requiredEarningVelocity,
+  // and paceStatus — so a separate velocity state + endpoint are no longer needed.
+  const loadReport = useCallback(async () => {
+    if (!driver) return;
+    try {
+      const d = await apiGet('/driver/' + driver.driverId + '/report');
+      setReport(d);
+    } catch {}
+  }, [driver]);
 
   const loadRides = useCallback(async () => {
     setRidesLoading(true);
@@ -48,33 +57,19 @@ function Inner() {
     finally { setRidesLoading(false); }
   }, [toast]);
 
-  const loadReport = useCallback(async () => {
-    if (!driver) return;
-    try { const d = await apiGet('/driver/' + driver.driverId + '/report'); setReport(d); } catch {}
-  }, [driver]);
-
-  const loadVelocity = useCallback(async () => {
-    if (!driver) return;
-    try { const d = await apiGet('/driver/' + driver.driverId + '/velocity'); setVelocity(d); } catch {}
-  }, [driver]);
-
   // Section nav side effects
   useEffect(() => {
     if (section === 'rides')  loadRides();
     if (section === 'report') loadReport();
   }, [section, loadRides, loadReport]);
 
-  // On driver login: load report + velocity immediately
+  // On driver login: load report immediately (velocity is embedded in it)
   useEffect(() => {
-    if (driver) { loadReport(); loadVelocity(); }
-  }, [driver, loadReport, loadVelocity]);
+    if (driver) loadReport();
+  }, [driver, loadReport]);
 
-  // Poll velocity every 10s
-  useEffect(() => {
-    if (!driver) return;
-    const t = setInterval(loadVelocity, 10000);
-    return () => clearInterval(t);
-  }, [driver, loadVelocity]);
+  // No polling — report (and velocity card) updates only when a ride is
+  // explicitly completed via completeRide(), which calls loadReport() directly.
 
   async function generateRides() {
     setGenerating(true);
@@ -92,7 +87,7 @@ function Inner() {
     try {
       const d = await apiPost('/shift/end', { driverId: driver.driverId });
       toast(`Shift ended. Goal ${d.goalMet ? 'MET ✓' : 'not met'}`, 'info');
-      setDriver(null); setReport(null); setActiveRide(null); setVelocity(null);
+      setDriver(null); setReport(null); setActiveRide(null);
     } catch(e) { toast(e.message, 'error'); }
   }
 
@@ -102,15 +97,15 @@ function Inner() {
       const d = await apiPost('/rides/' + activeRide.rideId + '/complete');
       toast(`Ride complete · ${d.stressRating || 'N/A'} stress`, 'success');
       setActiveRide(null);
-      loadReport();
-      loadVelocity();
+      loadReport(); // refreshes earned totals + velocity in one call
     } catch(e) { toast(e.message, 'error'); }
   }
 
   const nav = (id) => setSection(id);
 
   const content = {
-    dashboard: <Dashboard driver={driver} report={report} velocity={velocity} activeRide={activeRide} onCompleteRide={completeRide} onViewStress={() => nav('stress')} onRefresh={() => { loadReport(); loadVelocity(); }} />,
+    // velocity prop removed — Dashboard reads velocity fields from report directly
+    dashboard: <Dashboard driver={driver} report={report} activeRide={activeRide} onCompleteRide={completeRide} onViewStress={() => nav('stress')} onRefresh={loadReport} />,
     rides:     <AvailableRides rides={rides} loading={ridesLoading} onRidesChange={setRides} onRideAccepted={r => { setActiveRide(r); nav('dashboard'); }} driver={driver} hasActiveRide={!!activeRide} />,
     stress:    <StressMonitor activeRideId={activeRide?.rideId} />,
     report:    <Report report={report} onRefresh={loadReport} />,
