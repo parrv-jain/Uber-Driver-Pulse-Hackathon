@@ -10,7 +10,7 @@ import Report from './components/Report';
 import { Btn, Spinner } from './components/UI';
 
 function TopBar({ section, driver, onRegister, onEndShift, onGenerate, generating }) {
-  const titles = { dashboard:'Dashboard', rides:'Available Rides', stress:'Stress Monitor', report:'Driver Report' };
+  const titles = { dashboard:'Dashboard', rides:'Available Rides', stress:'Ride Monitor', report:'Driver Report' };
   return (
     <header style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'16px 28px', borderBottom:'1px solid var(--border)', background:'var(--surface)', position:'sticky', top:0, zIndex:10 }}>
       <div>
@@ -63,13 +63,9 @@ function Inner() {
     if (section === 'report') loadReport();
   }, [section, loadRides, loadReport]);
 
-  // On driver login: load report immediately (velocity is embedded in it)
   useEffect(() => {
     if (driver) loadReport();
   }, [driver, loadReport]);
-
-  // No polling — report (and velocity card) updates only when a ride is
-  // explicitly completed via completeRide(), which calls loadReport() directly.
 
   async function generateRides() {
     setGenerating(true);
@@ -104,7 +100,6 @@ function Inner() {
   const nav = (id) => setSection(id);
 
   const content = {
-    // velocity prop removed — Dashboard reads velocity fields from report directly
     dashboard: <Dashboard driver={driver} report={report} activeRide={activeRide} onCompleteRide={completeRide} onViewStress={() => nav('stress')} onRefresh={loadReport} />,
     rides:     <AvailableRides rides={rides} loading={ridesLoading} onRidesChange={setRides} onRideAccepted={r => { setActiveRide(r); nav('dashboard'); }} driver={driver} hasActiveRide={!!activeRide} />,
     stress:    <StressMonitor activeRideId={activeRide?.rideId} />,

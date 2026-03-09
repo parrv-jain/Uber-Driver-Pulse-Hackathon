@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -86,17 +87,20 @@ public class DriverController {
         int    shiftHours  = ((Number) body.getOrDefault("shiftHours", 8)).intValue();
 
         Driver driver = new Driver(name);
-        driver.setEarningGoal(new EarningGoal(earningGoal));
         driverRepo.save(driver);
 
-        LocalTime shiftEnd = LocalTime.now().plusHours(shiftHours);
+        LocalDateTime shiftEnd = LocalDateTime.now().plusHours(shiftHours);
         shiftService.startShift(driver, shiftEnd);
+
+        driver.setEarningGoal(new EarningGoal(earningGoal));
+        driver.getEarningGoal().setEarningVelocity(velocityService.calculate(driver, driver.getCurrentShift(), LocalDateTime.now()));
 
         return ResponseEntity.ok(Map.of(
                 "driverId",    driver.getId(),
                 "name",        driver.getName(),
                 "earningGoal", earningGoal,
-                "shiftEnd",    shiftEnd.toString(),
+                "hoursRemaining", String.format("%.2f", driver.getCurrentShift().getHoursRemaining()),
+                "shiftEnd", driver.getCurrentShift().getEndTime().toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm")),
                 "message",     "Driver registered and shift started"
         ));
     }

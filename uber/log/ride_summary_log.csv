@@ -1,3 +1,2 @@
 ride_id,driver_id,driver_name,duration,distance,start_location,end_location,fare,motion_flag_count,audio_flag_count,flagged_moment_count,stress_rating,stress_rating_label
-d7336ce3,80ccae83,Pranjal Kabra,2,10.5000,Worli,Kurla,157.5000,1,1,1,LOW,LOW
-bb7ea55b,a69ecc20,Pranjal Kabra,2,38.7000,Colaba,Thane,581.7000,1,3,3,LOW,LOW
+f94c1e35,04993cdb,lakshya,2,19.0000,Worli,Malad,281.0000,1,1,2,MEDIUM,MEDIUM

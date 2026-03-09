@@ -164,7 +164,7 @@ export default function Dashboard({ driver, report, activeRide, onCompleteRide, 
   const rides     = report?.completedRides ?? [];
   const remaining = report?.remaining ?? target;
   const goalMet   = report?.goalMet   ?? false;
-
+  // console.log(driver);
   return (
     <div>
       {/* Active Ride Banner */}
@@ -211,8 +211,8 @@ export default function Dashboard({ driver, report, activeRide, onCompleteRide, 
           value={goalMet ? '✓ Met' : 'Active'}
           sub={goalMet ? 'Goal achieved! 🎉' : `₹${remaining.toFixed(0)} remaining`}
         />
-        <StatCard label="Shift End" accent="coral"
-          value={driver?.shiftEnd?.slice(0,5) ?? '—'}
+        <StatCard label="Shift Ends In" accent="coral"
+          value={(driver?.hoursRemaining ?? '—') + " Hours"}
           sub={driver ? 'Ends at ' + (driver.shiftEnd ?? '?') : 'Not started'}
         />
       </div>

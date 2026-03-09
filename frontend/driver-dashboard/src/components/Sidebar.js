@@ -1,7 +1,7 @@
 const NAV = [
   { id:'dashboard', icon:'▣', label:'Dashboard' },
   { id:'rides',     icon:'🗺', label:'Available Rides' },
-  { id:'stress',    icon:'📊', label:'Stress Monitor' },
+  { id:'stress',    icon:'📊', label:'Active Ride' },
   { id:'report',    icon:'📋', label:'Report' },
 ];
 

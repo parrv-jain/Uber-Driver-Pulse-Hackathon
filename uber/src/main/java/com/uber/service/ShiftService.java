@@ -5,6 +5,7 @@ import com.uber.models.Shift;
 import com.uber.repository.DriverRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Service
@@ -16,11 +17,11 @@ public class ShiftService {
         this.driverRepo = driverRepo;
     }
 
-    public Shift startShift(Driver driver, LocalTime endTime) {
+    public Shift startShift(Driver driver, LocalDateTime endTime) {
         if (driver.getCurrentShift() != null && driver.getCurrentShift().isActive()) {
             throw new IllegalStateException("Driver " + driver.getName() + " already has an active shift.");
         }
-        LocalTime startTime = LocalTime.now();
+        LocalDateTime startTime = LocalDateTime.now();
         Shift shift = new Shift(driver.getId(), startTime, endTime);
         shift.activate();
         driver.setCurrentShift(shift);
