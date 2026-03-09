@@ -1,2 +1,5 @@
 flag_id,trip_id,driver_id,timestamp,elapsed_seconds,motion_score,motion_rating,audio_score,audio_rating,stress_score,stress_rating,explanation
-9b01a94e,2207a05a,ab165b13,2026-03-09T20:23:38.069784500,30,0.3814,MODERATE,0.5150,ARGUMENT,0.4348,MEDIUM,"Sustained high audio (100.6 dB) for 3s. Audio disturbance detected."
+17258e64,42824614,421daea7,2026-03-09T20:39:01.117338700,0,0.0000,GRADUAL,0.6203,ARGUMENT,0.2481,LOW,"Sustained high audio (102.2 dB) for 18s. Audio disturbance detected."
+6ecb6aba,42824614,421daea7,2026-03-09T20:40:01.131559500,60,0.0000,GRADUAL,0.5198,ARGUMENT,0.2079,LOW,"Sustained high audio (98.5 dB) for 6s. Audio disturbance detected."
+2a3a2620,42824614,421daea7,2026-03-09T20:41:01.123953700,120,0.2763,MODERATE,0.5912,ARGUMENT,0.4023,MEDIUM,"Sustained high audio (100.2 dB) for 16s. Audio disturbance detected."
+2a29092e,512c4862,421daea7,2026-03-09T20:41:45.840004100,0,0.6186,HARSH,0.3229,CONVERSATIONAL,0.5003,MEDIUM,"Harsh braking/acceleration detected (5.7 m/s²). Motion disturbance detected."

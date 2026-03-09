@@ -6,9 +6,7 @@ const NAV = [
 ];
 
 const ADMIN_NAV = [
-  { id:'admin',         icon:'🛡', label:'Admin Dashboard' },
-  { id:'admin-rides',   icon:'🚗', label:'All Rides'        },
-  { id:'admin-flagged', icon:'🚨', label:'Flagged Moments'  },
+  { id:'admin', icon:'🛡', label:'Admin Dashboard' },
 ];
 
 export default function Sidebar({ active, onNav, driver, role }) {
@@ -72,6 +70,30 @@ export default function Sidebar({ active, onNav, driver, role }) {
             </div>
           );
         })}
+
+        {/* Features bar — admin only */}
+        {isAdmin && (
+          <div style={{ marginTop: 20 }}>
+            <div style={{ fontFamily:'var(--font-mono)', fontSize:9, letterSpacing:'3px', textTransform:'uppercase', color:'var(--text-3)', padding:'0 10px', marginBottom:8 }}>Features</div>
+            <div style={{ display:'flex', flexDirection:'column', gap:6, padding:'0 4px' }}>
+              {[
+                { icon:'🚗', label:'All Rides',       color:'var(--cyan)'    },
+                { icon:'🚨', label:'Flagged Moments', color:'var(--coral)'   },
+                { icon:'📥', label:'Download Files',  color:'var(--emerald)' },
+              ].map(f => (
+                <div key={f.label} style={{
+                  display:'flex', alignItems:'center', gap:8,
+                  padding:'6px 10px', borderRadius:'var(--r-sm)',
+                  background:'var(--card)', border:'1px solid var(--border)',
+                  fontSize:11, fontWeight:600, color:f.color,
+                }}>
+                  <span style={{ fontSize:13 }}>{f.icon}</span>
+                  <span>{f.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* Bottom badge */}

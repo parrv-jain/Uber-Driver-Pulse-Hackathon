@@ -3,12 +3,15 @@ import { Modal, Btn, Input } from './UI';
 import { apiPost } from '../api';
 import { useToast } from '../hooks/useToast';
 
-export default function RegisterModal({ open, onClose, onRegistered }) {
+export default function RegisterModal({ open, onClose, onRegistered, defaultName = '' }) {
   const toast = useToast();
-  const [name, setName]   = useState('');
+  const [name, setName]   = useState(defaultName);
   const [goal, setGoal]   = useState('1000');
   const [hours, setHours] = useState('8');
   const [loading, setLoading] = useState(false);
+
+  // Sync name if defaultName changes (e.g. modal reopened after logout)
+  useState(() => { setName(defaultName); }, [defaultName]);
 
   async function submit() {
     if (!name.trim()) { toast('Please enter your name', 'error'); return; }

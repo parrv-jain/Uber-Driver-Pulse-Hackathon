@@ -64,6 +64,9 @@ public class DriverController {
     private final RideSimulationScheduler scheduler;
 
     private static final String FLAGGED_LOG = "uber/log/flagged_moments.csv";
+    private static final String RIDE_LOG    = "uber/log/ride_summary_log.csv";
+    private static final String AUDIO_LOG   = "uber/log/audio_sensor_log.csv";
+    private static final String MOTION_LOG  = "uber/log/motion_sensor_log.csv";
 
     public DriverController(DriverRepository driverRepo,
                             RideRepository rideRepo,
@@ -411,6 +414,52 @@ public class DriverController {
                 "count",          flaggedMoments.size(),
                 "flaggedMoments", flaggedMoments
         ));
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    // GET /api/admin/csv/flagged-moments  → download flagged_moments.csv
+    // GET /api/admin/csv/ride-summary     → download ride_summary_log.csv
+    // GET /api/admin/csv/audio-log        → download audio_sensor_log.csv
+    // GET /api/admin/csv/motion-log       → download motion_sensor_log.csv
+    // ─────────────────────────────────────────────────────────────────
+    @GetMapping("/admin/csv/flagged-moments")
+    public ResponseEntity<String> downloadFlaggedMoments() {
+        return serveCsv(FLAGGED_LOG, "flagged_moments.csv");
+    }
+
+    @GetMapping("/admin/csv/ride-summary")
+    public ResponseEntity<String> downloadRideSummary() {
+        return serveCsv(RIDE_LOG, "ride_summary_log.csv");
+    }
+
+    @GetMapping("/admin/csv/audio-log")
+    public ResponseEntity<String> downloadAudioLog() {
+        return serveCsv(AUDIO_LOG, "audio_sensor_log.csv");
+    }
+
+    @GetMapping("/admin/csv/motion-log")
+    public ResponseEntity<String> downloadMotionLog() {
+        return serveCsv(MOTION_LOG, "motion_sensor_log.csv");
+    }
+
+    private ResponseEntity<String> serveCsv(String filePath, String downloadName) {
+        try {
+            StringBuilder sb = new StringBuilder();
+            try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    sb.append(line).append("\n");
+                }
+            }
+            return ResponseEntity.ok()
+                    .header("Content-Type", "text/csv; charset=UTF-8")
+                    .header("Content-Disposition", "attachment; filename=\"" + downloadName + "\"")
+                    .body(sb.toString());
+        } catch (IOException e) {
+            return ResponseEntity.ok()
+                    .header("Content-Type", "text/csv; charset=UTF-8")
+                    .body("No data available yet.\n");
+        }
     }
 
     // ── Helper ──

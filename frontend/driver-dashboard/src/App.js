@@ -9,6 +9,7 @@ import StressMonitor from './components/StressMonitor';
 import Report from './components/Report';
 import AdminDashboard from './components/AdminDashboard';
 import LandingPage, { SplashScreen } from './components/LandingPage';
+import TripSummary from './components/TripSummary';
 import { Btn, Spinner } from './components/UI';
 
 // function TopBar({ section, driver, onRegister, onEndShift, onGenerate, generating }) {
@@ -51,7 +52,7 @@ function TopBar({ section, driver, onRegister, onEndShift, onGenerate, generatin
   );
 }
 
-function DriverApp({ onLogout }) {
+function DriverApp({ driverName, onLogout }) {
   const toast = useToast();
   const [section,      setSection]      = useState('dashboard');
   const [showReg,      setShowReg]      = useState(false);
@@ -61,16 +62,7 @@ function DriverApp({ onLogout }) {
   const [ridesLoading, setRidesLoading] = useState(false);
   const [report,       setReport]       = useState(null);
   const [generating,   setGenerating]   = useState(false);
-
-  // /driver/{id}/report now returns currentEarningVelocity, requiredEarningVelocity,
-  // and paceStatus — so a separate velocity state + endpoint are no longer needed.
-  const loadReport = useCallback(async () => {
-    if (!driver) return;
-    try {
-      const d = await apiGet('/driver/' + driver.driverId + '/report');
-      setReport(d);
-    } catch {}
-  }, [driver]);
+  const [tripSummaryData,  setTripSummaryData]  = useState(null); // holds data for TripSummary modal
 
   const loadRides = useCallback(async () => {
     setRidesLoading(true);
@@ -78,11 +70,11 @@ function DriverApp({ onLogout }) {
     catch(e) { toast('Could not load rides: ' + e.message, 'error'); }
     finally { setRidesLoading(false); }
   }, [toast]);
-  //
-  // const loadReport = useCallback(async () => {
-  //   if (!driver) return;
-  //   try { const d = await apiGet('/driver/' + driver.driverId + '/report'); setReport(d); } catch {}
-  // }, [driver]);
+
+  const loadReport = useCallback(async () => {
+    if (!driver) return;
+    try { const d = await apiGet('/driver/' + driver.driverId + '/report'); setReport(d); } catch {}
+  }, [driver]);
 
   const loadVelocity = useCallback(async () => {
     if (!driver) return;
@@ -128,15 +120,38 @@ function DriverApp({ onLogout }) {
     try {
       const d = await apiPost('/shift/end', { driverId: driver.driverId });
       toast(`Shift ended. Goal ${d.goalMet ? 'MET ✓' : 'not met'}`, 'info');
-      setDriver(null); setReport(null); setActiveRide(null);
+      setDriver(null); setReport(null); setActiveRide(null); setVelocity(null);
     } catch(e) { toast(e.message, 'error'); }
   }
 
   async function completeRide() {
     if (!activeRide) return;
     try {
-      const d = await apiPost('/rides/' + activeRide.rideId + '/complete');
-      toast(`Ride complete · ${d.stressRating || 'N/A'} stress`, 'success');
+      const completionData = await apiPost('/rides/' + activeRide.rideId + '/complete');
+      toast(`Ride complete · ${completionData.stressRating || 'N/A'} stress`, 'success');
+
+      // Fetch stress snapshots for the TripSummary
+      let snapshots = [];
+      let velocityHistory = [];
+      try {
+        const stressData = await apiGet('/rides/' + activeRide.rideId + '/stress');
+        snapshots = stressData.snapshots || stressData || [];
+      } catch {}
+      try {
+        if (driver) {
+          const velData = await apiGet('/driver/' + driver.driverId + '/velocity');
+          velocityHistory = velData?.history || [];
+        }
+      } catch {}
+
+      // Show TripSummary modal
+      setTripSummaryData({
+        ride: activeRide,
+        snapshots,
+        completionData,
+        velocityHistory,
+      });
+
       setActiveRide(null);
       loadReport(); // refreshes earned totals + velocity in one call
     } catch(e) { toast(e.message, 'error'); }
@@ -159,7 +174,13 @@ function DriverApp({ onLogout }) {
         <TopBar section={section} driver={driver} onRegister={() => setShowReg(true)} onEndShift={endShift} onGenerate={generateRides} generating={generating} onLogout={onLogout} />
         <main style={{ flex: 1, padding: '28px 32px', overflowY: 'auto', animation: 'fadeUp 0.25s ease' }}>{content[section]}</main>
       </div>
-      <RegisterModal open={showReg} onClose={() => setShowReg(false)} onRegistered={d => { setDriver(d); setShowReg(false); }} />
+      <RegisterModal open={showReg} onClose={() => setShowReg(false)} onRegistered={d => { setDriver(d); setShowReg(false); }} defaultName={driverName} />
+      {tripSummaryData && (
+        <TripSummary
+          data={tripSummaryData}
+          onClose={() => setTripSummaryData(null)}
+        />
+      )}
       <style>{`@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }`}</style>
     </div>
   );
@@ -182,13 +203,19 @@ function AdminApp({ onLogout }) {
 }
 
 function Inner() {
-  const [screen, setScreen] = useState('splash'); // splash | landing | driver | admin
+  const [screen,     setScreen]     = useState('splash'); // splash | landing | driver | admin
+  const [driverName, setDriverName] = useState('');
 
   return (
     <>
       {screen === 'splash'  && <SplashScreen onDone={() => setScreen('landing')} />}
-      {screen === 'landing' && <LandingPage onSelectDriver={() => setScreen('driver')} onSelectAdmin={() => setScreen('admin')} />}
-      {screen === 'driver'  && <DriverApp onLogout={() => setScreen('landing')} />}
+      {screen === 'landing' && (
+        <LandingPage
+          onSelectDriver={name => { setDriverName(name || ''); setScreen('driver'); }}
+          onSelectAdmin={() => setScreen('admin')}
+        />
+      )}
+      {screen === 'driver'  && <DriverApp driverName={driverName} onLogout={() => setScreen('landing')} />}
       {screen === 'admin'   && <AdminApp  onLogout={() => setScreen('landing')} />}
     </>
   );
