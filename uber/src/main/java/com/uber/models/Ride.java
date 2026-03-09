@@ -18,6 +18,7 @@ public class Ride {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private double actualFare;
+    private double stressScore;
     private StressRating stressRating;
     private final List<SensorReading> sensorReadings;
     private final List<StressSnapshot> stressSnapshots;
@@ -66,6 +67,7 @@ public class Ride {
     public LocalDateTime       getEndTime()         { return endTime; }
     public double              getActualFare()      { return actualFare; }
     public StressRating        getStressRating()    { return stressRating; }
+    public double getStressScore()       { return stressScore; }
     public List<SensorReading> getSensorReadings()  { return Collections.unmodifiableList(sensorReadings); }
     public List<StressSnapshot> getStressSnapshots(){ return Collections.unmodifiableList(stressSnapshots); }
 
@@ -74,6 +76,8 @@ public class Ride {
     public void setEndTime(LocalDateTime endTime)      { this.endTime = endTime; }
     public void setActualFare(double actualFare)       { this.actualFare = actualFare; }
     public void setStressRating(StressRating rating)   { this.stressRating = rating; }
+
+    public void setStressScore(double stressScore) { this.stressScore = stressScore; }
 
     @Override
     public String toString() {

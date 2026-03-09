@@ -7,13 +7,13 @@ import java.util.List;
 public class AverageStressStrategy implements StressRatingStrategy {
 
     @Override
-    public StressRating calculate(List<StressSnapshot> snapshots) {
-        if (snapshots == null || snapshots.isEmpty()) return StressRating.LOW;
+    public double calculate(List<StressSnapshot> snapshots) {
+        if (snapshots == null || snapshots.isEmpty()) return 0.0;
         double avg = snapshots.stream()
                 .mapToDouble(StressSnapshot::getCombinedScore)
                 .average()
                 .orElse(0.0);
-        return StressRating.fromScore(avg);
+        return avg;
     }
 
     @Override

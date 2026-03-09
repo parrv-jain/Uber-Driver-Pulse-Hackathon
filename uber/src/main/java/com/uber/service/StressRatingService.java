@@ -19,8 +19,10 @@ public class StressRatingService {
                     + " — defaulting to LOW.");
             return StressRating.LOW;
         }
-        StressRating rating = strategy.calculate(ride.getStressSnapshots());
+        double score = strategy.calculate(ride.getStressSnapshots());
+        StressRating rating = StressRating.fromScore(score);
         ride.setStressRating(rating);
+        ride.setStressScore(score);
         System.out.printf("[StressRatingService] Ride %s rated %s using [%s]%n",
                 ride.getId(), rating, strategy.getName());
         return rating;

@@ -103,7 +103,7 @@ public class CsvLogger {
                 String.valueOf(ride.getMotionFlagCount()),
                 String.valueOf(ride.getAudioFlagCount()),
                 String.valueOf(ride.getTotalFlagCount()),
-                ride.getStressRating() != null ? ride.getStressRating().toString() : "N/A",
+                String.format("%.2f", ride.getStressScore()),
                 ride.getStressRating() != null ? ride.getStressRating().toString() : "N/A"
         );
         write(RIDE_LOG, row, true);

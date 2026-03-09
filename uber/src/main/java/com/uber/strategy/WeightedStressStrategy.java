@@ -11,8 +11,8 @@ public class WeightedStressStrategy implements StressRatingStrategy {
 
     // The last 1/3 of snapshots are considered "recent"
     @Override
-    public StressRating calculate(List<StressSnapshot> snapshots) {
-        if (snapshots == null || snapshots.isEmpty()) return StressRating.LOW;
+    public double calculate(List<StressSnapshot> snapshots) {
+        if (snapshots == null || snapshots.isEmpty()) return 0.0;
 
         int size = snapshots.size();
         int recentCutoff = size - Math.max(1, size / 3);
@@ -26,7 +26,7 @@ public class WeightedStressStrategy implements StressRatingStrategy {
         }
 
         double weightedAvg = weightedSum / totalWeight;
-        return StressRating.fromScore(weightedAvg);
+        return weightedAvg;
     }
 
     @Override
