@@ -13,6 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.Serializable;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -20,6 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * REST Controller — exposes all the LLD logic as HTTP endpoints.
@@ -35,6 +40,11 @@ import java.util.Optional;
  *   POST   /api/rides/{rideId}/strategy   → switch stress strategy
  *   GET    /api/driver/{driverId}/report  → final report for driver
  *   POST   /api/shift/end                 → end shift for driver
+ *
+ *   ── ADMIN ENDPOINTS ──
+ *   GET    /api/admin/dashboard           → summary stats for Uber admin
+ *   GET    /api/admin/rides               → all rides (ongoing + completed)
+ *   GET    /api/admin/flagged-moments     → all flagged moments from CSV
  */
 
 @RestController
@@ -52,6 +62,8 @@ public class DriverController {
     private final StressScoreService    scoreService;
     private final EarningVelocityService velocityService;
     private final RideSimulationScheduler scheduler;
+
+    private static final String FLAGGED_LOG = "uber/log/flagged_moments.csv";
 
     public DriverController(DriverRepository driverRepo,
                             RideRepository rideRepo,
@@ -72,7 +84,7 @@ public class DriverController {
         this.ratingService   = ratingService;
         this.scoreService    = scoreService;
         this.velocityService = velocityService;
-        this.scheduler   = scheduler;
+        this.scheduler       = scheduler;
     }
 
     // ─────────────────────────────────────────────────────────────────
@@ -87,6 +99,7 @@ public class DriverController {
         int    shiftHours  = ((Number) body.getOrDefault("shiftHours", 8)).intValue();
 
         Driver driver = new Driver(name);
+        driver.setEarningGoal(new EarningGoal(earningGoal));
         driverRepo.save(driver);
 
         LocalDateTime shiftEnd = LocalDateTime.now().plusHours(shiftHours);
@@ -107,8 +120,6 @@ public class DriverController {
 
     // ─────────────────────────────────────────────────────────────────
     // POST /api/rides/generate
-    // Body: { "driverId": "abc123" }  (optional — just triggers generation)
-    // Returns: list of generated ride requests
     // ─────────────────────────────────────────────────────────────────
     @PostMapping("/rides/generate")
     public ResponseEntity<?> generateRides() {
@@ -304,15 +315,113 @@ public class DriverController {
         ));
     }
 
-    // ── Helper: converts a RideRequest to a simple map for JSON response ──
+    // ═════════════════════════════════════════════════════════════════
+    //  ADMIN ENDPOINTS — Uber's perspective
+    // ═════════════════════════════════════════════════════════════════
+
+    // ─────────────────────────────────────────────────────────────────
+    // GET /api/admin/dashboard
+    // Returns: summary stats — total rides, ongoing, completed, flags
+    // ─────────────────────────────────────────────────────────────────
+    @GetMapping("/admin/dashboard")
+    public ResponseEntity<?> getAdminDashboard() {
+        List<Ride> allRides = rideRepo.findAll();
+
+        long totalRides     = allRides.size();
+        long ongoingRides   = allRides.stream().filter(r -> r.getStatus() == RideStatus.ONGOING).count();
+        long completedRides = allRides.stream().filter(r -> r.getStatus() == RideStatus.COMPLETED).count();
+        long totalFlags     = allRides.stream().mapToLong(Ride::getTotalFlagCount).sum();
+        long highStressRides = allRides.stream()
+                .filter(r -> r.getStressRating() != null && r.getStressRating().toString().contains("HIGH"))
+                .count();
+        double totalRevenue = allRides.stream()
+                .filter(r -> r.getStatus() == RideStatus.COMPLETED)
+                .mapToDouble(Ride::getActualFare).sum();
+
+        return ResponseEntity.ok(Map.of(
+                "totalRides",      totalRides,
+                "ongoingRides",    ongoingRides,
+                "completedRides",  completedRides,
+                "totalFlags",      totalFlags,
+                "highStressRides", highStressRides,
+                "totalRevenue",    totalRevenue
+        ));
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    // GET /api/admin/rides
+    // Returns: all rides (ONGOING + COMPLETED) with full details
+    // ─────────────────────────────────────────────────────────────────
+    @GetMapping("/admin/rides")
+    public ResponseEntity<?> getAllRides() {
+        List<Ride> allRides = rideRepo.findAll();
+
+        List<Map<String, Object>> rideList = allRides.stream().map(r -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("rideId",       r.getId());
+            map.put("driverId",     r.getDriver().getId());
+            map.put("driverName",   r.getDriver().getName());
+            map.put("from",         r.getRequest().getPickupLocation().getLabel());
+            map.put("to",           r.getRequest().getDropLocation().getLabel());
+            map.put("fare",         r.getActualFare());
+            map.put("status",       r.getStatus().toString());
+            map.put("stressRating", r.getStressRating() != null ? r.getStressRating().toString() : "N/A");
+            map.put("audioFlags",   r.getAudioFlagCount());
+            map.put("motionFlags",  r.getMotionFlagCount());
+            map.put("totalFlags",   r.getTotalFlagCount());
+            map.put("startTime",    r.getStartTime() != null ? r.getStartTime().toString() : "N/A");
+            map.put("endTime",      r.getEndTime()   != null ? r.getEndTime().toString()   : "N/A");
+            return map;
+        }).collect(Collectors.toList());
+
+        return ResponseEntity.ok(Map.of(
+                "count", rideList.size(),
+                "rides", rideList
+        ));
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    // GET /api/admin/flagged-moments
+    // Returns: all flagged moments read from the CSV log file
+    // ─────────────────────────────────────────────────────────────────
+    @GetMapping("/admin/flagged-moments")
+    public ResponseEntity<?> getFlaggedMoments() {
+        List<Map<String, String>> flaggedMoments = new ArrayList<>();
+
+        try (BufferedReader br = new BufferedReader(new FileReader(FLAGGED_LOG))) {
+            String headerLine = br.readLine(); // skip header
+            if (headerLine == null) return ResponseEntity.ok(Map.of("count", 0, "flaggedMoments", flaggedMoments));
+
+            String[] headers = headerLine.split(",");
+            String line;
+            while ((line = br.readLine()) != null) {
+                // Handle quoted fields (explanation column may contain commas)
+                String[] parts = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
+                Map<String, String> row = new HashMap<>();
+                for (int i = 0; i < headers.length && i < parts.length; i++) {
+                    row.put(headers[i].trim(), parts[i].trim().replace("\"", ""));
+                }
+                flaggedMoments.add(row);
+            }
+        } catch (IOException e) {
+            return ResponseEntity.ok(Map.of("count", 0, "flaggedMoments", flaggedMoments, "note", "Log file not found yet"));
+        }
+
+        return ResponseEntity.ok(Map.of(
+                "count",          flaggedMoments.size(),
+                "flaggedMoments", flaggedMoments
+        ));
+    }
+
+    // ── Helper ──
     private Map<String, Object> requestSummary(RideRequest r) {
         return Map.of(
-                "requestId", r.getId(),
-                "from",      r.getPickupLocation().getLabel(),
-                "to",        r.getDropLocation().getLabel(),
-                "fare",      r.getEstimatedFare(),
-                "distanceKm",r.getEstimatedDistance(),
-                "durationMin",r.getEstimatedDuration()
+                "requestId",   r.getId(),
+                "from",        r.getPickupLocation().getLabel(),
+                "to",          r.getDropLocation().getLabel(),
+                "fare",        r.getEstimatedFare(),
+                "distanceKm",  r.getEstimatedDistance(),
+                "durationMin", r.getEstimatedDuration()
         );
     }
 }

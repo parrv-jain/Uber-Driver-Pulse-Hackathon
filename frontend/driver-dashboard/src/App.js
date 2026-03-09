@@ -7,29 +7,51 @@ import Dashboard from './components/Dashboard';
 import AvailableRides from './components/AvailableRides';
 import StressMonitor from './components/StressMonitor';
 import Report from './components/Report';
+import AdminDashboard from './components/AdminDashboard';
+import LandingPage, { SplashScreen } from './components/LandingPage';
 import { Btn, Spinner } from './components/UI';
 
-function TopBar({ section, driver, onRegister, onEndShift, onGenerate, generating }) {
-  const titles = { dashboard:'Dashboard', rides:'Available Rides', stress:'Ride Monitor', report:'Driver Report' };
+// function TopBar({ section, driver, onRegister, onEndShift, onGenerate, generating }) {
+//   const titles = { dashboard:'Dashboard', rides:'Available Rides', stress:'Ride Monitor', report:'Driver Report' };
+function TopBar({ section, driver, onRegister, onEndShift, onGenerate, generating, onLogout }) {
+  const titles = {
+    dashboard: 'Dashboard',
+    rides:     'Available Rides',
+    stress:    'Stress Monitor',
+    report:    'Driver Report',
+    admin:     'Admin Dashboard',
+  };
+  const isAdmin = section === 'admin';
   return (
-    <header style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'16px 28px', borderBottom:'1px solid var(--border)', background:'var(--surface)', position:'sticky', top:0, zIndex:10 }}>
+    <header style={{
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      padding: '16px 28px', borderBottom: '1px solid var(--border)',
+      background: 'var(--surface)', position: 'sticky', top: 0, zIndex: 10,
+    }}>
       <div>
-        <div style={{ fontSize:20, fontWeight:800, letterSpacing:'-0.5px' }}>{titles[section]}</div>
-        <div style={{ fontFamily:'var(--font-mono)', fontSize:10, color:'var(--text-3)', letterSpacing:'1px', marginTop:2 }}>DRIVER OPERATIONS CENTER</div>
+        <div style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.5px' }}>{titles[section]}</div>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-3)', letterSpacing: '1px', marginTop: 2 }}>
+          {isAdmin ? 'UBER OPERATIONS CENTER' : 'DRIVER OPERATIONS CENTER'}
+        </div>
       </div>
-      <div style={{ display:'flex', gap:10, alignItems:'center' }}>
-        <Btn variant="outline" size="sm" onClick={onGenerate} disabled={generating}>
-          {generating ? <Spinner size={12} /> : '⚡'} Generate Rides
-        </Btn>
-        {driver
-          ? <Btn variant="danger"  size="sm" onClick={onEndShift}>End Shift</Btn>
-          : <Btn variant="primary" size="sm" onClick={onRegister}>🚗 Start Shift</Btn>}
+      <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+        {!isAdmin && (
+          <>
+            <Btn variant="outline" size="sm" onClick={onGenerate} disabled={generating}>
+              {generating ? <Spinner size={12} /> : '⚡'} Generate Rides
+            </Btn>
+            {driver
+              ? <Btn variant="danger"  size="sm" onClick={onEndShift}>End Shift</Btn>
+              : <Btn variant="primary" size="sm" onClick={onRegister}>🚗 Start Shift</Btn>}
+          </>
+        )}
+        <Btn variant="ghost" size="sm" onClick={onLogout}>← Exit</Btn>
       </div>
     </header>
   );
 }
 
-function Inner() {
+function DriverApp({ onLogout }) {
   const toast = useToast();
   const [section,      setSection]      = useState('dashboard');
   const [showReg,      setShowReg]      = useState(false);
@@ -56,16 +78,39 @@ function Inner() {
     catch(e) { toast('Could not load rides: ' + e.message, 'error'); }
     finally { setRidesLoading(false); }
   }, [toast]);
+  //
+  // const loadReport = useCallback(async () => {
+  //   if (!driver) return;
+  //   try { const d = await apiGet('/driver/' + driver.driverId + '/report'); setReport(d); } catch {}
+  // }, [driver]);
+
+  const loadVelocity = useCallback(async () => {
+    if (!driver) return;
+    try { const d = await apiGet('/driver/' + driver.driverId + '/velocity'); setVelocity(d); } catch {}
+  }, [driver]);
 
   // Section nav side effects
   useEffect(() => {
-    if (section === 'rides')  loadRides();
+    if (section === 'rides') loadRides();
     if (section === 'report') loadReport();
   }, [section, loadRides, loadReport]);
 
   useEffect(() => {
     if (driver) loadReport();
   }, [driver, loadReport]);
+
+  useEffect(() => {
+    if (driver) {
+      loadReport();
+      loadVelocity();
+    }
+  }, [driver, loadReport, loadVelocity]);
+
+  useEffect(() => {
+    if (!driver) return;
+    const t = setInterval(loadVelocity, 10000);
+    return () => clearInterval(t);
+  }, [driver, loadVelocity]);
 
   async function generateRides() {
     setGenerating(true);
@@ -107,16 +152,45 @@ function Inner() {
   };
 
   return (
-    <div style={{ display:'flex', minHeight:'100vh' }}>
-      <div style={{ position:'fixed', inset:0, pointerEvents:'none', zIndex:0, background:'radial-gradient(ellipse 600px 400px at 20% 0%, rgba(200,241,53,0.04) 0%, transparent 70%), radial-gradient(ellipse 400px 400px at 80% 100%, rgba(53,212,241,0.04) 0%, transparent 70%)' }} />
-      <Sidebar active={section} onNav={nav} driver={driver} />
-      <div style={{ flex:1, display:'flex', flexDirection:'column', position:'relative', zIndex:1, minWidth:0 }}>
-        <TopBar section={section} driver={driver} onRegister={() => setShowReg(true)} onEndShift={endShift} onGenerate={generateRides} generating={generating} />
-        <main style={{ flex:1, padding:'28px 32px', overflowY:'auto', animation:'fadeUp 0.25s ease' }}>{content[section]}</main>
+    <div style={{ display: 'flex', minHeight: '100vh' }}>
+      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0, background: 'radial-gradient(ellipse 600px 400px at 20% 0%, rgba(200,241,53,0.04) 0%, transparent 70%), radial-gradient(ellipse 400px 400px at 80% 100%, rgba(53,212,241,0.04) 0%, transparent 70%)' }} />
+      <Sidebar active={section} onNav={nav} driver={driver} role="driver" />
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', zIndex: 1, minWidth: 0 }}>
+        <TopBar section={section} driver={driver} onRegister={() => setShowReg(true)} onEndShift={endShift} onGenerate={generateRides} generating={generating} onLogout={onLogout} />
+        <main style={{ flex: 1, padding: '28px 32px', overflowY: 'auto', animation: 'fadeUp 0.25s ease' }}>{content[section]}</main>
       </div>
       <RegisterModal open={showReg} onClose={() => setShowReg(false)} onRegistered={d => { setDriver(d); setShowReg(false); }} />
       <style>{`@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }`}</style>
     </div>
+  );
+}
+
+function AdminApp({ onLogout }) {
+  return (
+    <div style={{ display: 'flex', minHeight: '100vh' }}>
+      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0, background: 'radial-gradient(ellipse 600px 400px at 20% 0%, rgba(53,212,241,0.04) 0%, transparent 70%)' }} />
+      <Sidebar active="admin" onNav={() => {}} driver={null} role="admin" />
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', zIndex: 1, minWidth: 0 }}>
+        <TopBar section="admin" onLogout={onLogout} />
+        <main style={{ flex: 1, padding: '28px 32px', overflowY: 'auto', animation: 'fadeUp 0.25s ease' }}>
+          <AdminDashboard />
+        </main>
+      </div>
+      <style>{`@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }`}</style>
+    </div>
+  );
+}
+
+function Inner() {
+  const [screen, setScreen] = useState('splash'); // splash | landing | driver | admin
+
+  return (
+    <>
+      {screen === 'splash'  && <SplashScreen onDone={() => setScreen('landing')} />}
+      {screen === 'landing' && <LandingPage onSelectDriver={() => setScreen('driver')} onSelectAdmin={() => setScreen('admin')} />}
+      {screen === 'driver'  && <DriverApp onLogout={() => setScreen('landing')} />}
+      {screen === 'admin'   && <AdminApp  onLogout={() => setScreen('landing')} />}
+    </>
   );
 }
 

@@ -1,0 +1,4 @@
+log_id,ride_id,driver_id,timestamp,decibels,sustained_seconds,audio_score,audio_level,is_flagged
+c4dddeff,0b5f299d,ab165b13,2026-03-09T20:22:58.978794900,87.8001,2.5127,0.4205,CONVERSATIONAL,false
+0248eb65,2207a05a,ab165b13,2026-03-09T20:23:08.061073500,78.0787,6.4145,0.3739,CONVERSATIONAL,false
+9b9ea0db,2207a05a,ab165b13,2026-03-09T20:23:38.069784500,100.6211,2.8163,0.5150,ARGUMENT,true
