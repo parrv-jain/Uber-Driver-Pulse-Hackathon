@@ -7,7 +7,7 @@
 - Driver - driver123
 - UberAdmin - admin123
 ### Note to judges
-- The logs folder is generated at **source_code/backend/backend/logs **
+- The logs folder is generated at **source_code/backend/backend/logs**
 - Don't start a ride before registration of driver and setting shiftHours and Earning Goals.
 - Snapshots are generated randomly at an interval of 30 seconds.
 - So we request you to wait for atleast 2 minutes before ending a ride to be able to see atleast 4 snapshot readings
