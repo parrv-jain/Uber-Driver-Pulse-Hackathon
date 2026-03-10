@@ -1,15 +1,24 @@
 package com.uber.strategy;
 
 import com.uber.enums.StressRating;
+import com.uber.models.Ride;
 import com.uber.models.StressMetrics;
 import com.uber.models.StressSnapshot;
+import org.springframework.stereotype.Service;
+
 import java.util.List;
 
+@Service
 public class AverageStressStrategy implements StressRatingStrategy {
 
-    @Override
-    public StressMetrics calculate(List<StressSnapshot> snapshots) {
+    private static RideMotionScore motionScore;
+    public AverageStressStrategy(RideMotionScore motionScore) {
+        this.motionScore = motionScore;
+    }
 
+    @Override
+    public StressMetrics calculate(Ride ride) {
+        List<StressSnapshot> snapshots = ride.getStressSnapshots();
         if (snapshots == null || snapshots.isEmpty()) {
             return new StressMetrics(0.0, 0.0);
         }
@@ -19,10 +28,7 @@ public class AverageStressStrategy implements StressRatingStrategy {
                 .average()
                 .orElse(0.0);
 
-        double avgMotion = snapshots.stream()
-                .mapToDouble(StressSnapshot::getMotionScore)
-                .average()
-                .orElse(0.0);
+        double avgMotion = motionScore.calculate(ride);
 
         return new StressMetrics(avgAudio, avgMotion);
     }

@@ -1,9 +1,9 @@
 package com.uber.enums;
 
 public enum MotionRating {
-    GRADUAL(0.00, 0.25),
-    MODERATE(0.25, 0.60),
-    HARSH(0.60, 1.00);
+    GRADUAL(0.00, 0.01),
+    MODERATE(0.01, 0.99),
+    HARSH(0.99, 1.00);
 
     private final double min;
     private final double max;

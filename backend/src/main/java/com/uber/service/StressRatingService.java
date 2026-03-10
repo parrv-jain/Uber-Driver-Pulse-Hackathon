@@ -10,7 +10,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class StressRatingService {
 
-    private StressRatingStrategy strategy = new AverageStressStrategy();
+    private StressRatingStrategy strategy;
+    public StressRatingService(AverageStressStrategy strategy) {
+        this.strategy = strategy;
+    }
 
     public StressRatingService() {}
 
@@ -18,7 +21,7 @@ public class StressRatingService {
         if (ride.getStressSnapshots().isEmpty()) {
             System.out.println("[StressRatingService] No snapshots for ride " + ride.getId());
         }
-        StressMetrics res = strategy.calculate(ride.getStressSnapshots());
+        StressMetrics res = strategy.calculate(ride);
         double audioScore = res.getAudioScore();
         double motionScore = res.getMotionScore();
         double score = (audioScore + motionScore) / 2;

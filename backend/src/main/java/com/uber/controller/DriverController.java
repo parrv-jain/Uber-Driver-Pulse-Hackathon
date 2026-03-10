@@ -62,6 +62,9 @@ public class DriverController {
     private final StressScoreService    scoreService;
     private final EarningVelocityService velocityService;
     private final RideSimulationScheduler scheduler;
+    private final AverageStressStrategy averageStressStrategy;
+    private final WeightedStressStrategy weightedStressStrategy;
+    private final PeakStressStrategy peakStressStrategy;
 
     private static final String FLAGGED_LOG = "uber/log/flagged_moments.csv";
     private static final String RIDE_LOG    = "uber/log/ride_summary_log.csv";
@@ -77,7 +80,10 @@ public class DriverController {
                             StressRatingService ratingService,
                             StressScoreService scoreService,
                             EarningVelocityService velocityService,
-                            RideSimulationScheduler scheduler) {
+                            RideSimulationScheduler scheduler,
+                            AverageStressStrategy averageStressStrategy,
+                            PeakStressStrategy peakStressStrategy,
+                            WeightedStressStrategy weightedStressStrategy) {
         this.driverRepo      = driverRepo;
         this.rideRepo        = rideRepo;
         this.rideRequestRepo = rideRequestRepo;
@@ -88,6 +94,9 @@ public class DriverController {
         this.scoreService    = scoreService;
         this.velocityService = velocityService;
         this.scheduler       = scheduler;
+        this.averageStressStrategy = averageStressStrategy;
+        this.weightedStressStrategy = weightedStressStrategy;
+        this.peakStressStrategy = peakStressStrategy;
     }
 
     // ─────────────────────────────────────────────────────────────────
@@ -261,9 +270,9 @@ public class DriverController {
                                             @RequestBody Map<String, String> body) {
         String strategyName = body.getOrDefault("strategy", "AVERAGE").toUpperCase();
         switch (strategyName) {
-            case "PEAK"     -> ratingService.setStrategy(new PeakStressStrategy());
-            case "WEIGHTED" -> ratingService.setStrategy(new WeightedStressStrategy());
-            default         -> ratingService.setStrategy(new AverageStressStrategy());
+            case "PEAK"     -> ratingService.setStrategy(peakStressStrategy);
+            case "WEIGHTED" -> ratingService.setStrategy(weightedStressStrategy);
+            default         -> ratingService.setStrategy(averageStressStrategy);
         }
         return ResponseEntity.ok(Map.of("message", "Strategy switched to " + strategyName));
     }

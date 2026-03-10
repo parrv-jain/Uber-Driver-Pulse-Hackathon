@@ -28,10 +28,10 @@ public class CsvLogger {
                 + "curr_velocity,required_velocity,velocity_delta,trips_completed,forecast_status", false);
         write(AUDIO_LOG,   "log_id,ride_id,driver_id,timestamp,decibels,sustained_seconds,"
                 + "audio_score,audio_level,is_flagged", false);
-        write(MOTION_LOG,  "log_id,ride_id,driver_id,timestamp,acc_x,acc_y,acc_z,acceleration,latitude,longitude,"
+        write(MOTION_LOG,  "log_id,ride_id,driver_id,timestamp,acc_x,acc_y,acc_z,speed,latitude,longitude,"
                 + "motion_score,motion_level,is_flagged", false);
         write(RIDE_LOG,    "ride_id,driver_id,driver_name,duration,distance,start_location,end_location,fare,"
-                + "motion_flag_count,audio_flag_count,flagged_moment_count,stress_rating,stress_rating_label", false);
+                + "motion_flag_count,audio_flag_count,flagged_moment_count,motion_score,audio_score,stress_rating,stress_rating_label", false);
         write(FLAGGED_LOG, "flag_id,trip_id,driver_id,timestamp,elapsed_seconds,motion_score,"
                 + "motion_rating,audio_score,audio_rating,stress_score,stress_rating,explanation", false);
     }
@@ -79,7 +79,7 @@ public class CsvLogger {
                 fmt(m.getAcc_x()),
                 fmt(m.getAcc_y()),
                 fmt(m.getAcc_z()),
-                fmt(m.getAcceleration()),
+                fmt(m.getSpeed()),
                 fmt(m.getLatitude()),
                 fmt(m.getLongitude()),
                 fmt(snapshot.getMotionScore()),
@@ -103,6 +103,8 @@ public class CsvLogger {
                 String.valueOf(ride.getMotionFlagCount()),
                 String.valueOf(ride.getAudioFlagCount()),
                 String.valueOf(ride.getTotalFlagCount()),
+                String.format("%.2f", ride.getMotionScore()),
+                String.format("%.2f", ride.getAudioScore()),
                 String.format("%.2f", ride.getStressScore()),
                 ride.getStressRating() != null ? ride.getStressRating().toString() : "N/A"
         );
