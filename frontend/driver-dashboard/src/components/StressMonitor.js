@@ -159,9 +159,9 @@ export default function StressMonitor({ activeRideId }) {
                 head={['Time','Audio','Level','Motion','Level','Combined','Level','Flags']}
                 rows={snaps.map(s => [
                   <MonoLabel style={{fontSize:10}}>{s.timestamp}</MonoLabel>,
-                  <span style={{color:'var(--lime)',fontFamily:'var(--font-mono)',fontWeight:700}}>{s.audioScore?.toFixed(1)}</span>,
+                  <span style={{color:'var(--lime)',fontFamily:'var(--font-mono)',fontWeight:700}}>{s.audioScore?.toFixed(2)}</span>,
                   <Badge color={levelColor(s.audioLevel)}>{s.audioLevel}</Badge>,
-                  <span style={{color:'var(--cyan)',fontFamily:'var(--font-mono)',fontWeight:700}}>{s.motionScore?.toFixed(1)}</span>,
+                  <span style={{color:'var(--cyan)',fontFamily:'var(--font-mono)',fontWeight:700}}>{s.motionScore?.toFixed(2)}</span>,
                   <Badge color={levelColor(s.motionLevel)}>{s.motionLevel}</Badge>,
                   <span style={{color:'var(--coral)',fontFamily:'var(--font-mono)',fontWeight:700}}>{s.combinedScore?.toFixed(1)}</span>,
                   <Badge color={levelColor(s.combinedLevel)}>{s.combinedLevel}</Badge>,

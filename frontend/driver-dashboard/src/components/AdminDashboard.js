@@ -67,6 +67,17 @@ function CsvDownloadSection() {
       endpoint: '/admin/csv/motion-log',
       filename: 'motion_sensor_log.csv',
     },
+    {
+      id: 'earningVelocity',
+      label: 'Earning Velocity Log',
+      icon: '💰',
+      desc: 'Driver earning velocity snapshots tracked over shift duration',
+      color: 'var(--rose)',
+      colorDim: 'rgba(241,53,112,0.08)',
+      colorBorder: 'rgba(241,53,112,0.2)',
+      endpoint: '/admin/csv/earning-velocity-log',
+      filename: 'earning_velocity_log.csv',
+    },
   ];
 
   async function downloadCsv(file) {

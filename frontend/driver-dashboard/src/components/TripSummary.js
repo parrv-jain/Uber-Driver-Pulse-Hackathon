@@ -118,6 +118,9 @@ export default function TripSummary({ data, onClose }) {
     audioScore:    num(s.audioScore),
     motionScore:   num(s.motionScore),
     combinedScore: num(s.combinedScore),
+    currentVelocity: num(s.currentVelocity),
+    requiredVelocity: num(s.requiredVelocity),
+    velocityDelta: num(s.velocityDelta),
     // use index as x-axis key to avoid duplicate timestamp collisions
     idx: `S${i + 1}`,
     // short time label: try to extract HH:MM:SS, fallback to index
@@ -132,11 +135,11 @@ export default function TripSummary({ data, onClose }) {
   const hasScores = parsed.some(s => s.audioScore > 0 || s.motionScore > 0 || s.combinedScore > 0);
 
   const flaggedSnaps = parsed.filter(s => s.audioFlagged || s.motionFlagged);
-  const avgAudio     = parsed.length ? parsed.reduce((a,s) => a + s.audioScore,    0) / parsed.length : 0;
-  const avgMotion    = parsed.length ? parsed.reduce((a,s) => a + s.motionScore,   0) / parsed.length : 0;
-  const avgCombined  = parsed.length ? parsed.reduce((a,s) => a + s.combinedScore, 0) / parsed.length : 0;
+  const avgAudio     = completionData.rideAudioScore;
+  const avgMotion    = completionData.rideMotionScore;
+  const avgCombined  = completionData.rideStressScore;
   const peakCombined = parsed.length ? Math.max(...parsed.map(s => s.combinedScore)) : 0;
-  const stressInfo   = stressLabel(avgCombined);
+  const stressInfo   = completionData.stressRating;
 
   // ── Stress chart — use index as X so no duplicates ───
   const stressChartData = parsed.map(s => ({
@@ -148,9 +151,12 @@ export default function TripSummary({ data, onClose }) {
   }));
 
   // ── Velocity chart ────────────────────────────────────
-  const velChartData = velocityHistory.length > 1
-    ? velocityHistory
-    : null; // only show if we actually have history
+  const velChartData = parsed.map(s => ({
+    t:        s.timeLabel,
+    Current:    +s.currentVelocity.toFixed(1),
+    Required:   +s.requiredVelocity.toFixed(1),
+    Delta: +s.velocityDelta.toFixed(1),
+  }));
 
   const fareEarned   = num(ride?.fare || completionData?.fare || 0);
   const stressRating = completionData?.stressRating || 'N/A';
@@ -187,8 +193,8 @@ export default function TripSummary({ data, onClose }) {
         <div style={{ display:'flex', gap:10, flexWrap:'wrap' }}>
           <Pill label="Fare Earned"    value={`₹${fareEarned}`}            color="#c8f135" />
           <Pill label="Stress Rating"  value={stressRating}                color={ratingColor(stressRating)} />
-          <Pill label="Avg Stress"     value={hasScores ? avgCombined.toFixed(1) : '—'}  color={stressInfo.color} />
-          <Pill label="Peak Stress"    value={hasScores ? peakCombined.toFixed(1) : '—'} color={levelColor(stressLabel(peakCombined).label.toUpperCase())} />
+          <Pill label="Avg Stress"     value={hasScores ? avgCombined.toFixed(2) : '—'}  color={stressInfo.color} />
+          <Pill label="Peak Stress"    value={hasScores ? peakCombined.toFixed(2) : '—'} color={levelColor(stressLabel(peakCombined).label.toUpperCase())} />
           <Pill label="Audio Flags"    value={audioFlags}   color={audioFlags  > 0 ? '#f16035' : '#35f17e'} />
           <Pill label="Motion Flags"   value={motionFlags}  color={motionFlags > 0 ? '#35d4f1' : '#35f17e'} />
         </div>
@@ -206,7 +212,7 @@ export default function TripSummary({ data, onClose }) {
             ].map(item => (
               <div key={item.label} style={{ flex:1, background:'#080810', border:'1px solid rgba(255,255,255,0.06)', borderRadius:10, padding:'12px 16px' }}>
                 <div style={{ fontFamily:'JetBrains Mono, monospace', fontSize:9, letterSpacing:'2px', textTransform:'uppercase', color:'#55557a', marginBottom:6 }}>{item.label}</div>
-                <div style={{ fontSize:24, fontWeight:800, letterSpacing:'-0.8px', color:item.color }}>{item.val.toFixed(1)}</div>
+                <div style={{ fontSize:24, fontWeight:800, letterSpacing:'-0.8px', color:item.color }}>{item.val.toFixed(2)}</div>
                 <div style={{ height:4, background:'rgba(255,255,255,0.06)', borderRadius:99, marginTop:8, overflow:'hidden' }}>
                   <div style={{ height:'100%', width:`${Math.min(100, item.val)}%`, background:item.color, borderRadius:99 }} />
                 </div>
@@ -258,33 +264,6 @@ export default function TripSummary({ data, onClose }) {
                   <div style={{ width:1, height:10, background:'rgba(241,96,53,0.6)' }} /> Flag event
                 </div>
               )}
-            </div>
-          </div>
-        )}
-
-        {/* Velocity Chart */}
-        <SectionDivider title="Earning Velocity vs Target" />
-        {!velChartData ? (
-          <NoData message="Velocity history not available — ride completed too quickly to sample multiple data points" />
-        ) : (
-          <div style={{ background:'#080810', border:'1px solid rgba(255,255,255,0.06)', borderRadius:12, padding:'16px 12px 8px' }}>
-            <ResponsiveContainer width="100%" height={170}>
-              <LineChart data={velChartData} margin={{ top:5, right:5, left:-10, bottom:0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-                <XAxis dataKey="t" tick={{ fill:'#55557a', fontSize:9, fontFamily:'JetBrains Mono, monospace' }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
-                <YAxis tick={{ fill:'#55557a', fontSize:9, fontFamily:'JetBrains Mono, monospace' }} axisLine={false} tickLine={false} />
-                <Tooltip content={<ChartTooltip />} />
-                <Line type="monotone" dataKey="Actual" stroke="#c8f135" strokeWidth={2}   dot={{ r:3, fill:'#c8f135' }} />
-                <Line type="monotone" dataKey="Target" stroke="#35d4f1" strokeWidth={1.5} strokeDasharray="5 3" dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
-            <div style={{ display:'flex', gap:16, marginTop:8, paddingLeft:4 }}>
-              <div style={{ display:'flex', alignItems:'center', gap:5, fontSize:10, color:'#55557a', fontFamily:'JetBrains Mono, monospace' }}>
-                <div style={{ width:12, height:2, borderRadius:2, background:'#c8f135' }} />Actual ₹/hr
-              </div>
-              <div style={{ display:'flex', alignItems:'center', gap:5, fontSize:10, color:'#55557a', fontFamily:'JetBrains Mono, monospace' }}>
-                <div style={{ width:12, height:0, border:'1px dashed #35d4f1' }} />Target ₹/hr
-              </div>
             </div>
           </div>
         )}
@@ -342,16 +321,16 @@ export default function TripSummary({ data, onClose }) {
 
         {/* Verdict */}
         <SectionDivider title="Overall Verdict" />
-        <div style={{ background: avgCombined < 40 ? 'rgba(53,241,126,0.05)' : avgCombined < 70 ? 'rgba(200,241,53,0.05)' : 'rgba(241,96,53,0.05)', border:`1px solid ${avgCombined < 40 ? 'rgba(53,241,126,0.2)' : avgCombined < 70 ? 'rgba(200,241,53,0.2)' : 'rgba(241,96,53,0.2)'}`, borderRadius:12, padding:'18px 22px', display:'flex', alignItems:'center', gap:20 }}>
-          <div style={{ fontSize:36 }}>{avgCombined < 30 ? '😌' : avgCombined < 50 ? '🙂' : avgCombined < 70 ? '😐' : '😰'}</div>
+        <div style={{ background: avgCombined < 0.30 ? 'rgba(53,241,126,0.05)' : avgCombined < 0.60 ? 'rgba(200,241,53,0.05)' : 'rgba(241,96,53,0.05)', border:`1px solid ${avgCombined < 0.30 ? 'rgba(53,241,126,0.2)' : avgCombined < 0.60 ? 'rgba(200,241,53,0.2)' : 'rgba(241,96,53,0.2)'}`, borderRadius:12, padding:'18px 22px', display:'flex', alignItems:'center', gap:20 }}>
+          <div style={{ fontSize:36 }}>{avgCombined < 0.30 ? '😌' : avgCombined < 0.60 ? '🙂' : avgCombined < 0.85 ? '😐' : '😰'}</div>
           <div style={{ flex:1 }}>
             <div style={{ fontSize:16, fontWeight:800, marginBottom:4, color: stressInfo.color }}>
-              {avgCombined < 30 ? 'Relaxed Trip' : avgCombined < 50 ? 'Normal Trip' : avgCombined < 70 ? 'Stressful Trip' : 'High Stress Trip'}
+              {avgCombined < 0.30 ? 'Relaxed Trip' : avgCombined < 0.60 ? 'Normal Trip' : avgCombined < 0.85 ? 'Stressful Trip' : 'High Stress Trip'}
             </div>
             <div style={{ fontSize:13, color:'#9999b8', lineHeight:1.6 }}>
-              Avg stress: <strong style={{ color:stressInfo.color }}>{hasScores ? avgCombined.toFixed(1) : '—'}</strong> ({stressInfo.label}) ·{' '}
+              Avg stress: <strong style={{ color:stressInfo.color }}>{hasScores ? avgCombined.toFixed(2) : '—'}</strong> ·{' '}
               {flaggedSnaps.length === 0 ? 'No flagged events — excellent drive!' : `${flaggedSnaps.length} flagged event${flaggedSnaps.length > 1 ? 's' : ''} recorded`}
-              {' '}· Fare: <strong style={{ color:'#c8f135' }}>₹{fareEarned}</strong>
+              
             </div>
           </div>
           <div style={{ textAlign:'right', flexShrink:0 }}>
