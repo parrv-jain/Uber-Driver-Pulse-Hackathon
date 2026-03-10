@@ -1,15 +1,15 @@
 # Driver Pulse : Team BlackBugs(Group - 17)
-#### Please note that we were not able to take processed_logs outside the backend folder. They will be available at
-_source_code/backend/backend/logs_
 ### Demo Video
 [Drive Link](https://drive.google.com/file/d/1887Z2-Dy-wcJr3HVHhVNitxCINSwW_GZ/view?usp=drivesdk)
 
 ### Live Application
+https://uber-driver-pulse-hackathon.vercel.app/
+
 ### Credentials
 - Driver - driver123
 - UberAdmin - admin123
 ### Note to judges
-- The logs folder is generated at **source_code/backend/backend/logs **
+- The logs folder is generated at **source_code/backend/backend/logs**
 - Don't start a ride before registration of driver and setting shiftHours and Earning Goals.
 - Snapshots are generated randomly at an interval of 30 seconds.
 - So we request you to wait for atleast 2 minutes before ending a ride to be able to see atleast 4 snapshot readings
@@ -86,35 +86,48 @@ DriverOS is a full-stack platform with **two perspectives**:
 
 ```
 Uber-Driver-Pulse-Hackathon/
-├── uber/                          # Spring Boot Backend
-│   ├── src/main/java/com/uber/
-│   │   ├── controller/            # REST API endpoints
-│   │   ├── models/                # Driver, Ride, Shift, etc.
-│   │   ├── service/               # Core logic
-│   │   ├── repository/            # In-memory data store
-│   │   ├── strategy/              # Stress rating strategies
-│   │   └── enums/                 # Status enums
-│   └── log/                       # CSV logs (auto-generated)
-│       ├── flagged_moments.csv    # outputs generated
-│       ├── ride_summary_log.csv
-│       ├── audio_sensor_log.csv
-│       └── motion_sensor_log.csv
+├── source_code/
+│   ├── backend/                          # Spring Boot Backend
+│   │   ├── backend/                      # Maven project root
+│   │   ├── src/main/java/com/uber/
+│   │   │   ├── controller/               # REST API endpoints
+│   │   │   ├── models/                   # Driver, Ride, Shift, etc.
+│   │   │   ├── service/                  # Core business logic
+│   │   │   ├── repository/               # In-memory data store
+│   │   │   ├── strategy/                 # Stress rating strategies
+│   │   │   └── enums/                    # Status enums
+│   │   ├── log/                          # CSV logs (auto-generated)
+│   │   │   ├── flagged_moments.csv
+│   │   │   ├── ride_summary_log.csv
+│   │   │   ├── audio_sensor_log.csv
+│   │   │   └── motion_sensor_log.csv
+│   │   ├── Dockerfile                    # Docker config for Render deployment
+│   │   └── pom.xml                       # Maven dependencies
+│   │
+│   └── frontend/                         # React Frontend
+│       ├── driver-dashboard/             # Next.js / React app
+│       │   └── src/
+│       │       ├── components/
+│       │       │   ├── LandingPage.js    # Splash + role selection + login
+│       │       │   ├── Sidebar.js        # Navigation sidebar
+│       │       │   ├── Dashboard.js      # Driver dashboard
+│       │       │   ├── AvailableRides.js # Ride request list
+│       │       │   ├── StressMonitor.js  # Real-time stress charts
+│       │       │   ├── Report.js         # Driver report
+│       │       │   ├── AdminDashboard.js # Admin operations view
+│       │       │   ├── RegisterModal.js  # Driver registration modal
+│       │       │   └── UI.js             # Shared UI components
+│       │       ├── hooks/
+│       │       │   └── useToast.js       # Toast notifications
+│       │       ├── api.js                # API helper functions
+│       │       └── App.js                # Root app with routing
+│       └── package-lock.json
 │
-└── frontend/driver-dashboard/     # React Frontend
-    └── src/
-        ├── components/
-        │   ├── LandingPage.js     # Splash + role selection + login
-        │   ├── Sidebar.js         # Navigation sidebar
-        │   ├── Dashboard.js       # Driver dashboard
-        │   ├── AvailableRides.js  # Ride request list
-        │   ├── StressMonitor.js   # Real-time stress charts
-        │   ├── Report.js          # Driver report
-        │   ├── AdminDashboard.js  # Admin operations view
-        │   ├── RegisterModal.js   # Driver registration
-        │   └── UI.js              # Shared UI components
-        ├── hooks/useToast.js      # Toast notifications
-        ├── api.js                 # API helper functions
-        └── App.js                 # Root app with routing
+├── System_Architecture/                  # Architecture diagrams & docs
+├── .gitignore
+├── DesignDocument.pdf
+├── Progress_log.pdf
+└── README.md
 ```
 
 ---
@@ -180,7 +193,8 @@ Uber-Driver-Pulse-Hackathon/
 <img width="1851" height="211" alt="image" src="https://github.com/user-attachments/assets/35106fbc-83f4-4d89-971b-aa7283844218" />
 ---
 
-
+#### Please note that we were not able to take processed_logs outside the backend folder. They will be available at
+_source_code/backend/backend/logs_
 
 ## Tech Stack
 
@@ -197,4 +211,3 @@ Built with atmost sincerity for the **Uber Hackathon 2026**
 - [Pranjal Kabra](https://github.com/PranjalKabra)
 - [Parrv Jain](https://github.com/parrv-jain)
 - [Nidhi Maria Snatosh](https://github.com/Nidhi-Maria)
-
