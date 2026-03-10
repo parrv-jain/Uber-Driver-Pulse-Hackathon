@@ -1,10 +1,15 @@
 # Driver Pulse : Team BlackBugs(Group - 17)
+#### Please note that we were not able to take processed_logs outside the backend folder. They will be available at
+_source_code/backend/backend/logs_
 ### Demo Video
+[Drive Link](https://drive.google.com/file/d/1887Z2-Dy-wcJr3HVHhVNitxCINSwW_GZ/view?usp=drivesdk)
+
 ### Live Application
 ### Credentials
 - Driver - driver123
 - UberAdmin - admin123
 ### Note to judges
+- The logs folder is generated at **source_code/backend/backend/logs **
 - Don't start a ride before registration of driver and setting shiftHours and Earning Goals.
 - Snapshots are generated randomly at an interval of 30 seconds.
 - So we request you to wait for atleast 2 minutes before ending a ride to be able to see atleast 4 snapshot readings
@@ -25,7 +30,7 @@ cd Uber-Driver-Pulse-Hackathon
 
 ### 2. Start the Backend
 ```bash
-cd uber
+cd source_code/backend
 mvn clean install
 mvn spring-boot:run
 ```
@@ -33,7 +38,7 @@ Backend runs on **http://localhost:8080**
 
 ### 3. Start the Frontend
 ```bash
-cd frontend/driver-dashboard
+cd source_code/frontend/driver-dashboard
 npm install
 npm start
 ```
