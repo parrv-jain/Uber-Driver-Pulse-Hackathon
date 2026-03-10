@@ -20,8 +20,6 @@ DriverOS is a full-stack platform with **two perspectives**:
 - **Driver POV** — Drivers can start shifts, accept/reject rides, track earnings, and monitor their own stress levels in real time.
 - **Admin POV** — Uber admins can monitor all rides platform-wide, review flagged stress moments, and get a high-level operations overview.
 
----
-
 ## Features
 
 ### Driver Dashboard
