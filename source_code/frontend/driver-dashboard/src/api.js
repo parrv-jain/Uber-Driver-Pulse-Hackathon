@@ -1,4 +1,4 @@
-export const BASE = 'https://uber-driver-pulse-hackathon.onrender.com/api';
+export const BASE = 'https://uber-driver-pulse-hackathon-r4gm.onrender.com/api';
 
 export async function apiGet(path) {
   const res = await fetch(BASE + path);
