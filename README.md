@@ -88,6 +88,9 @@ Uber-Driver-Pulse-Hackathon/
 ## Documentation
 
 
+
+
+For in-depth Documentation of each designPattern, please visit [docs](/docs)
 ---
 ## Run Locally
 ### Prerequisites
