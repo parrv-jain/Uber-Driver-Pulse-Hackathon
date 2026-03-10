@@ -1,5 +1,7 @@
 package com.uber.models;
 
+import com.uber.enums.AudioRating;
+import com.uber.enums.MotionRating;
 import com.uber.enums.RideStatus;
 import com.uber.enums.StressRating;
 import java.time.LocalDateTime;
@@ -18,8 +20,9 @@ public class Ride {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private double actualFare;
+    private double motionScore;
+    private double audioScore;
     private double stressScore;
-    private StressRating stressRating;
     private final List<SensorReading> sensorReadings;
     private final List<StressSnapshot> stressSnapshots;
 
@@ -31,6 +34,9 @@ public class Ride {
         this.actualFare      = request.getEstimatedFare();
         this.sensorReadings  = new ArrayList<>();
         this.stressSnapshots = new ArrayList<>();
+        this.stressScore = 0.0;
+        this.motionScore = 0.0;
+        this.audioScore = 0.0;
     }
 
     public void addSensorReading(SensorReading reading) {
@@ -66,7 +72,11 @@ public class Ride {
     public LocalDateTime       getStartTime()       { return startTime; }
     public LocalDateTime       getEndTime()         { return endTime; }
     public double              getActualFare()      { return actualFare; }
-    public StressRating        getStressRating()    { return stressRating; }
+    public StressRating        getStressRating()    { return StressRating.fromScore(stressScore); }
+    public MotionRating        getMotionRating()     { return MotionRating.from(motionScore); }
+    public double              getAudioScore()       { return audioScore; }
+    public AudioRating getAudioRating()     { return AudioRating.from(audioScore); }
+    public double getMotionScore()       { return motionScore; }
     public double getStressScore()       { return stressScore; }
     public List<SensorReading> getSensorReadings()  { return Collections.unmodifiableList(sensorReadings); }
     public List<StressSnapshot> getStressSnapshots(){ return Collections.unmodifiableList(stressSnapshots); }
@@ -75,13 +85,14 @@ public class Ride {
     public void setStartTime(LocalDateTime startTime)  { this.startTime = startTime; }
     public void setEndTime(LocalDateTime endTime)      { this.endTime = endTime; }
     public void setActualFare(double actualFare)       { this.actualFare = actualFare; }
-    public void setStressRating(StressRating rating)   { this.stressRating = rating; }
 
     public void setStressScore(double stressScore) { this.stressScore = stressScore; }
+    public void setAudioScore(double audioScore) { this.audioScore = audioScore; }
+    public void setMotionScore(double motionScore) { this.motionScore = motionScore; }
 
     @Override
     public String toString() {
-        return String.format("Ride[id=%s, driver=%s, status=%s, fare=₹%.2f, stress=%s]",
-                id, driver.getName(), status, actualFare, stressRating);
+        return String.format("Ride[id=%s, driver=%s, status=%s, fare=₹%.2f, stressScore=%s, stressLevel=%s]",
+                id, driver.getName(), status, actualFare, stressScore, this.getStressRating());
     }
 }

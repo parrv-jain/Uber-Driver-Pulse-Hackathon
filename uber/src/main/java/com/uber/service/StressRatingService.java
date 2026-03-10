@@ -2,6 +2,7 @@ package com.uber.service;
 
 import com.uber.enums.StressRating;
 import com.uber.models.Ride;
+import com.uber.models.StressMetrics;
 import com.uber.strategy.AverageStressStrategy;
 import com.uber.strategy.StressRatingStrategy;
 import org.springframework.stereotype.Service;
@@ -13,19 +14,19 @@ public class StressRatingService {
 
     public StressRatingService() {}
 
-    public StressRating rateRide(Ride ride) {
+    public void rateRide(Ride ride) {
         if (ride.getStressSnapshots().isEmpty()) {
-            System.out.println("[StressRatingService] No snapshots for ride " + ride.getId()
-                    + " — defaulting to LOW.");
-            return StressRating.LOW;
+            System.out.println("[StressRatingService] No snapshots for ride " + ride.getId());
         }
-        double score = strategy.calculate(ride.getStressSnapshots());
-        StressRating rating = StressRating.fromScore(score);
-        ride.setStressRating(rating);
+        StressMetrics res = strategy.calculate(ride.getStressSnapshots());
+        double audioScore = res.getAudioScore();
+        double motionScore = res.getMotionScore();
+        double score = (audioScore + motionScore) / 2;
         ride.setStressScore(score);
+        ride.setMotionScore(motionScore);
+        ride.setAudioScore(score);
         System.out.printf("[StressRatingService] Ride %s rated %s using [%s]%n",
-                ride.getId(), rating, strategy.getName());
-        return rating;
+                ride.getId(), StressRating.fromScore(score), strategy.getName());
     }
 
     public void setStrategy(StressRatingStrategy strategy) {
