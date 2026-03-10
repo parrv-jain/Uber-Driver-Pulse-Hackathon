@@ -105,6 +105,7 @@ cd Uber-Driver-Pulse-Hackathon
 ### 2. Start the Backend
 ```bash
 cd uber
+mvn clean install
 mvn spring-boot:run
 ```
 Backend runs on **http://localhost:8080**
