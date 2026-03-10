@@ -271,7 +271,7 @@ export default function AdminDashboard() {
   }, []);
 
   useEffect(() => { loadAll(); }, [loadAll]);
-  useEffect(() => { const t = setInterval(loadAll, 15000); return () => clearInterval(t); }, [loadAll]);
+  // useEffect(() => { const t = setInterval(loadAll, 15000); return () => clearInterval(t); }, [loadAll]);
 
   const tabs = [
     { id: 'rides',   label: '🚗 All Rides',      count: rides.length   },
