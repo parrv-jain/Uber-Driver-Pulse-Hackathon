@@ -14,7 +14,7 @@ import java.util.UUID;
 @Service
 public class CsvLogger {
 
-    private static final String LOG_DIR      = "/app/log/";
+    private static final String LOG_DIR      = "log/";
     private static final String EARNING_LOG  = LOG_DIR + "earning_velocity_log.csv";
     private static final String AUDIO_LOG    = LOG_DIR + "audio_sensor_log.csv";
     private static final String MOTION_LOG   = LOG_DIR + "motion_sensor_log.csv";

@@ -1,0 +1,2 @@
+flag_id,trip_id,driver_id,timestamp,elapsed_seconds,motion_score,motion_rating,audio_score,audio_rating,stress_score,stress_rating,explanation
+0b887083,966a5443,26f68dfb,2026-03-10T22:59:42.514941700,0,0.4708,MODERATE,0.5613,ARGUMENT,0.5161,MEDIUM,"Sustained high audio (52.7 dB) for 19s. Audio disturbance detected."

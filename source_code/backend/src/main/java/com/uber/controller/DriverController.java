@@ -66,11 +66,12 @@ public class DriverController {
     private final WeightedStressStrategy weightedStressStrategy;
     private final PeakStressStrategy peakStressStrategy;
 
-    private static final String FLAGGED_LOG = "app/log/flagged_moments.csv";
-    private static final String RIDE_LOG    = "app/log/ride_summary_log.csv";
-    private static final String AUDIO_LOG   = "app/log/audio_sensor_log.csv";
-    private static final String MOTION_LOG  = "app/log/motion_sensor_log.csv";
-    private static final String EV_LOG  = "app/log/earning_velocity_log.csv";
+    private static final String LOG_DIR      = "log/";
+    private static final String EV_LOG  = LOG_DIR + "earning_velocity_log.csv";
+    private static final String AUDIO_LOG    = LOG_DIR + "audio_sensor_log.csv";
+    private static final String MOTION_LOG   = LOG_DIR + "motion_sensor_log.csv";
+    private static final String RIDE_LOG     = LOG_DIR + "ride_summary_log.csv";
+    private static final String FLAGGED_LOG  = LOG_DIR + "flagged_moments.csv";
 
     public DriverController(DriverRepository driverRepo,
                             RideRepository rideRepo,
