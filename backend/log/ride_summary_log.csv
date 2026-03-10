@@ -1,2 +1,0 @@
-ride_id,driver_id,driver_name,duration,distance,start_location,end_location,fare,motion_flag_count,audio_flag_count,flagged_moment_count,stress_rating,stress_rating_label
-c48a17a1,a4a02d3e,pranjal,2,21.2000,Kandivali,Worli,318.7000,0,2,2,0.30,MEDIUM

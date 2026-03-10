@@ -15,8 +15,6 @@ public class StressRatingService {
         this.strategy = strategy;
     }
 
-    public StressRatingService() {}
-
     public void rateRide(Ride ride) {
         if (ride.getStressSnapshots().isEmpty()) {
             System.out.println("[StressRatingService] No snapshots for ride " + ride.getId());

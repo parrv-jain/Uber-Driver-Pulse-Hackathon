@@ -1,3 +1,0 @@
-flag_id,trip_id,driver_id,timestamp,elapsed_seconds,motion_score,motion_rating,audio_score,audio_rating,stress_score,stress_rating,explanation
-0e3b6af1,c48a17a1,a4a02d3e,2026-03-10T04:02:12.078260687,90,0.0174,GRADUAL,0.5693,ARGUMENT,0.2382,LOW,"Sustained high audio (100.5 dB) for 12s. Audio disturbance detected."
-7094c65d,c48a17a1,a4a02d3e,2026-03-10T04:02:42.078305318,120,0.0778,GRADUAL,0.5817,ARGUMENT,0.2793,LOW,"Sustained high audio (103.1 dB) for 11s. Audio disturbance detected."
