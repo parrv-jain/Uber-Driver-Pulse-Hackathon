@@ -1,0 +1,4 @@
+log_id,ride_id,driver_id,timestamp,decibels,sustained_seconds,audio_score,audio_level,is_flagged
+49a16560,93121d1f,e30e12d8,2026-03-10T16:15:26.119396008,104.1484,1.7049,0.9257,VERY_LOUD,true
+10907afc,93121d1f,e30e12d8,2026-03-10T16:15:56.118622873,57.3156,11.0662,0.5617,ARGUMENT,true
+13a3bd7d,93121d1f,e30e12d8,2026-03-10T16:16:26.118642514,83.4762,6.5726,0.8174,VERY_LOUD,true

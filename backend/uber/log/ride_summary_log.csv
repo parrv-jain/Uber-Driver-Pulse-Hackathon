@@ -1,3 +1,0 @@
-ride_id,driver_id,driver_name,duration,distance,start_location,end_location,fare,motion_flag_count,audio_flag_count,flagged_moment_count,stress_rating,stress_rating_label
-42824614,421daea7,pranjal,2,9.5000,Mulund,Malad,139.0000,0,3,3,LOW,LOW
-512c4862,421daea7,pranjal,0,4.8000,Bandra West,Worli,82.8000,1,0,1,MEDIUM,MEDIUM

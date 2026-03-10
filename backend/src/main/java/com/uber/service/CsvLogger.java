@@ -14,7 +14,7 @@ import java.util.UUID;
 @Service
 public class CsvLogger {
 
-    private static final String LOG_DIR      = "uber/log/";
+    private static final String LOG_DIR      = "backend/log/";
     private static final String EARNING_LOG  = LOG_DIR + "earning_velocity_log.csv";
     private static final String AUDIO_LOG    = LOG_DIR + "audio_sensor_log.csv";
     private static final String MOTION_LOG   = LOG_DIR + "motion_sensor_log.csv";
@@ -31,7 +31,7 @@ public class CsvLogger {
         write(MOTION_LOG,  "log_id,ride_id,driver_id,timestamp,acc_x,acc_y,acc_z,speed,latitude,longitude,"
                 + "motion_score,motion_level,is_flagged", false);
         write(RIDE_LOG,    "ride_id,driver_id,driver_name,duration,distance,start_location,end_location,fare,"
-                + "motion_flag_count,audio_flag_count,flagged_moment_count,motion_score,audio_score,stress_rating,stress_rating_label", false);
+                + "motion_flag_count,audio_flag_count,flagged_moment_count,motion_score,audio_score,stress_score,stress_rating_label", false);
         write(FLAGGED_LOG, "flag_id,trip_id,driver_id,timestamp,elapsed_seconds,motion_score,"
                 + "motion_rating,audio_score,audio_rating,stress_score,stress_rating,explanation", false);
     }
