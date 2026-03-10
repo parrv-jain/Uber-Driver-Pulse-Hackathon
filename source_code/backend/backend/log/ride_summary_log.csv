@@ -1,0 +1,2 @@
+ride_id,driver_id,driver_name,duration,distance,start_location,end_location,fare,motion_flag_count,audio_flag_count,flagged_moment_count,motion_score,audio_score,stress_score,stress_rating_label
+bcffe6d1,c6af26f4,HolaAmigo,4,3.6000,Dadar,Chembur,60.6000,2,9,9,1.00,0.89,0.89,CRITICAL
