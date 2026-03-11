@@ -3,7 +3,7 @@
 [Drive Link](https://drive.google.com/file/d/1887Z2-Dy-wcJr3HVHhVNitxCINSwW_GZ/view?usp=drivesdk)
 
 ### Live Application
-[DriverOS](https://uber-driver-pulse-hackathon.vercel.app/)
+[DriverOS](https://uber-driver-pulse-hackathon-frontend.onrender.com/)
 
 ### Credentials
 - Driver - driver123
