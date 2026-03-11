@@ -22,7 +22,9 @@ public class CsvLogger {
     private static final String FLAGGED_LOG  = LOG_DIR + "flagged_moments.csv";
 
     public CsvLogger() {
-        new java.io.File(LOG_DIR).mkdirs();
+        java.io.File dir = new java.io.File(LOG_DIR);
+        boolean created = dir.mkdirs();
+        System.out.println("[CsvLogger] Log directory: " + dir.getAbsolutePath() + " | Created: " + created);
         // Write headers fresh on each run
         write(EARNING_LOG, "log_id,driver_id,date,timestamp,current_earnings,elapsed_hours,"
                 + "curr_velocity,required_velocity,velocity_delta,trips_completed,forecast_status", false);

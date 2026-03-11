@@ -19,7 +19,7 @@ public class SensorSimulator {
     }
 
     private AudioData generateAudio() {
-        double decibels         = 40 + random.nextDouble() * 70;
+        double decibels         = 30 + random.nextDouble() * 70;
         double sustainedSeconds = random.nextDouble() * 20;
         return new AudioData(decibels, sustainedSeconds);
     }
